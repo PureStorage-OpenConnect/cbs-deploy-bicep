@@ -1,8 +1,10 @@
 using 'templates/cbs-managed-app.bicep'
 
 param location = 'westeurope'
-param resourceName = 'my-resource-name'
+param subscriptionId = 'xxxxxxxx-xxxx-xxxx-xxx-xxxxxxxxxxxx'
 param resourceGroupName = 'your-resource-group-name'
+
+param resourceName = 'my-resource-name'
 param alertRecipients = 'my-email-address@contoso.dev'
 param arrayName = 'my-array-name'
 param licenseKey = 'CBS-TRIAL-LICENSE'

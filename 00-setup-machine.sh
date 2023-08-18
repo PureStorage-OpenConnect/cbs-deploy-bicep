@@ -8,12 +8,21 @@ echo "Installing tools"
 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
 
-#4.5. Install the Azure CLI packages, jq, .NET, zip
+#4.5. Install the Azure CLI packages, bicep, jq, .NET, zip
 if [[ "$OSTYPE" =~ ^linux ]]; then
   sudo apt -qy install jq
+
+  curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
+  # Mark it as executable
+  chmod +x ./bicep
+  # Add bicep to your PATH (requires admin)
+  sudo mv ./bicep /usr/local/bin/bicep
 fi
 
 if [[ "$OSTYPE" =~ ^darwin ]]; then
+  # Add the tap for bicep
+  brew tap azure/bicep
+
   brew help
   if [[ $? != 0 ]] ; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
@@ -21,6 +30,7 @@ if [[ "$OSTYPE" =~ ^darwin ]]; then
     brew update
   fi
   brew install jq
+  brew install bicep
 fi
 
 # check installed tooling
@@ -40,7 +50,6 @@ if [ $? == 0 ]; then
 else
   echo "Installing bicep"
   az bicep install
-  exit 1;
 fi
 
 jq --version
@@ -51,12 +60,20 @@ else
   exit 1;
 fi
 
+bicep --version
+if [ $? == 0 ]; then
+  echosuccess "[.] bicep-cli tool...OK";
+else
+  echoerr "Error with 'bicep-cli' tool!";
+  exit 1;
+fi
+
 echo "Asking user to log in...";
 # ask user for login
 az login
 if [ $? == 0 ]; then
   echosuccess "
-  Your machine should be ready! Now proceed with ./deploy.sh script
+  Your machine should be ready! Now proceed with './01-deploy-prerequisities.sh' script
   
   ";
 else

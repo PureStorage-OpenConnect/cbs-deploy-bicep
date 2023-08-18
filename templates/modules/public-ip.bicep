@@ -19,4 +19,4 @@ resource publicip 'Microsoft.Network/publicIPAddresses@2021-05-01' = {
 }
 
 output id string = publicip.id
-
+output ipAddress string = publicip.properties.ipAddress

@@ -1,4 +1,6 @@
 using 'templates/prerequisites.bicep'
 
 param location = 'westeurope'
+param subscriptionId = 'xxxxxxxx-xxxx-xxxx-xxx-xxxxxxxxxxxx'
 param resourceGroupName = 'your-resource-group-name'
+

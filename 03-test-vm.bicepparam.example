@@ -1,0 +1,26 @@
+using './templates/test-vm.bicep'
+
+param location = 'westeurope'
+param subscriptionId = 'xxxxxxxx-xxxx-xxxx-xxx-xxxxxxxxxxxx'
+param resourceGroupName = 'your-resource-group-name'
+
+param extensionFileUrl = 'https://raw.githubusercontent.com/PureStorage-OpenConnect/cbs-deploy-bicep/main/templates/test-vm-extensions/setup-demo-cbs.ps1'
+param extensionCustomizeUXFileUrl = 'https://raw.githubusercontent.com/PureStorage-OpenConnect/cbs-deploy-bicep/main/templates/test-vm-extensions/customize-vm.ps1'
+param PureManagementIP = '<< IP address of load balancer of CBS >>'
+
+// this is CBS default username and password
+param PureManagementUser = 'pureuser'
+param PureManagementPassword = 'pureuser'
+
+// VM machine name
+param virtualMachineName = '<< VM name >>'
+
+// VM size
+param virtualMachineSize='Standard_D2s_v5'
+
+// VM credentials
+param adminUsername='<< VM admin username >>'
+param adminPassword='<< VM admin password >>'
+
+// value '$myIpAddress' will be replaced with your current public IP address
+param whitelistedSourceAddress = '$myIpAddress'

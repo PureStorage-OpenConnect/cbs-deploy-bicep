@@ -1,55 +1,60 @@
 #!/bin/bash
+set -e
 SHOW_DEBUG_OUTPUT=false
 
-escape_quotes(){
-    echo $@ | sed s/'"'/'\\"'/g
-}
-
-
-curlwithcode() {
-    code=0
-    # Run curl in a separate command, capturing output of -w "%{http_code}" into statuscode
-    # and sending the content to a file with -o >(cat >/tmp/curl_body)
-    statuscode=$(curl -w "%{http_code}" \
-        -o >(cat >/tmp/curl_body) \
-        "$@"
-    ) || code="$?"
-
-    body="$(cat /tmp/curl_body)"
-    echo "{\"statusCode\": $statuscode,"
-    echo "\"exitCode\": $code,"
-    echo "\"body\": \"$(escape_quotes $body)\"}"
-}
-
-echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
-echosuccess() { printf "\033[0;32m%s\n\033[0m" "$*" >&2; }
+source $(dirname $0)/script-modules/common.sh
 
 
 # Read the bicep parameters
 parametersfilename='./03-test-vm.bicepparam'
 
-echo "           "
-echo "           "
-echo "  TEST VM DEPLOYMENT   "
-echo "           "
-echo "           "
-echo "           "
+source $(dirname $0)/script-modules/ascii-logo.sh
+
+echo -e "
+------------------------------------------------------------
+        Pure Cloud Block Store - Test VM Deployment
+                (c) 2023 Pure Storage
+                        v$CLI_VERSION
+------------------------------------------------------------
+"
+
+echo -e "${C_BLUE3}${C_GREY85}
+[Step #1] Getting your current IP address...
+
+"
+
+myIpAddress=(`curl ifconfig.me 2> /dev/null`)
+
+if [ -z "$myIpAddress" ]; then
+    echoerr "Something failed during gathering public IP address!"
+    exit 1;
+else
+    echosuccess "Your public IP address: $myIpAddress"
+    echo "There will be a network security group restricting access just for your IP address."
+fi
 
 
-
-echo "Deploying the VM for testing"
-myIpAddress=`curl ifconfig.me 2> /dev/null`
 
 paramsJson=`bicep build-params $parametersfilename --stdout  | jq -r ".parametersJson"`
 
-tmpJsonFilename='tmp.json'
+tmpJsonFilename='tmp03.json'
+subscriptionId=`echo $paramsJson | jq -r ".parameters.subscriptionId.value"`
 resourceGroupName=`echo $paramsJson | jq -r ".parameters.resourceGroupName.value"`
 (echo $paramsJson | sed "s/\$myIpAddress/$myIpAddress/") > $tmpJsonFilename
+
+
+
+echo -e "${C_BLUE3}${C_GREY85}
+[Step #2] Deploying VM into subscription $subscriptionId into RG ${resourceGroupName}:${NO_FORMAT}
+
+"
+
 
 # Deploy our infrastructure
 output=$(az deployment group create \
   --name "test-vm-deploy-sh" \
   --resource-group $resourceGroupName \
+  --subscription $subscriptionId \
   --template-file "templates/test-vm.bicep" \
   --parameters @$tmpJsonFilename
 
@@ -57,43 +62,49 @@ output=$(az deployment group create \
 
 rm $tmpJsonFilename
 
-cbsmanagementLbIp=`echo $output | jq -r '.properties.outputs.cbsmanagementLbIp.value'`
-cbsmanagementEndpointCT0=`echo $output | jq -r '.properties.outputs.cbsmanagementEndpointCT0.value'`
-cbsmanagementEndpointCT1=`echo $output | jq -r '.properties.outputs.cbsmanagementEndpointCT1.value'`
+vmIpAddress=`echo $output | jq -r '.properties.outputs.vmIpAddress.value'`
+adminUsername=`echo $output | jq -r '.properties.outputs.adminUsername.value'`
+adminPassword=`echo $output | jq -r '.properties.outputs.adminPassword.value'`
 
-cbsreplicationEndpointCT0=`echo $output | jq -r '.properties.outputs.cbsreplicationEndpointCT0.value'`
-cbsreplicationEndpointCT1=`echo $output | jq -r '.properties.outputs.cbsreplicationEndpointCT1.value'`
-
-cbsiSCSIEndpointCT0=`echo $output | jq -r '.properties.outputs.cbsiSCSIEndpointCT0.value'`
-cbsiSCSIEndpointCT1=`echo $output | jq -r '.properties.outputs.cbsiSCSIEndpointCT1.value'`
 
 
 echo ""
 echo ""
 echo ""
-echosuccess "The deployment of CBS managed application has been completed."
+echosuccess "The deployment of DEMO Virtual Machine has been completed."
 echo ""
 
-echo " ******** Array parameters ********"
+echo " ******** VM parameters ********"
 
 echo ""
 echo ""
 echo " -------- Endpoints for management -------------"
-echo "|  Load balancer IP   |  ${cbsmanagementLbIp}"
-echo "|  CT0 IP address     |  ${cbsmanagementEndpointCT0}"
-echo "|  CT1 IP address     |  ${cbsmanagementEndpointCT1}"
+echo "|  VM Public IP address    |  ${vmIpAddress}"
+echo "|  Admin username          |  ${adminUsername}"
+echo "|  Admin password          |  ${adminPassword}"
 echo " -----------------------------------------------"
+echo ""
+echo ""
 
-echo ""
-echo ""
-echo " --------- Endpoints for replication -----------"
-echo "|  CT0 IP address    |  ${cbsreplicationEndpointCT0}"
-echo "|  CT1 IP address    |  ${cbsreplicationEndpointCT1}"
-echo " -----------------------------------------------"
+# if running in Windows Subsystem in Linux
+if [ -n "${WSLENV}" ];
+then
+    echo -e "${C_BLUE3}${C_GREY85}
+[Step #3][Optional] Opening Remote Desktop Connection session into the test VM:${NO_FORMAT}
+"
+    echo " Adding credentials to cmdkey:"
+    cmdkey.exe /generic:"$vmIpAddress" /user:"$adminUsername" /pass:"$adminPassword"
+    echo " Trying to open RDP connection..."
+    mstsc.exe /v:$vmIpAddress
+    echosuccess 'The RDP connection should be opened.'
 
-echo ""
-echo ""
-echo " ------------ Endpoints for iSCSI --------------"
-echo "|  CT0 IP address    |  ${cbsiSCSIEndpointCT0}"
-echo "|  CT1 IP address    |  ${cbsiSCSIEndpointCT1}"
-echo " -----------------------------------------------"
+    echo "For new RDP session use command:
+> mstsc.exe /v:$vmIpAddress"
+fi
+
+
+# running in MacOS
+if [[ "$OSTYPE" =~ ^darwin ]]; then
+    echo " MacOS detected - trying to open Microsoft Remote Desktop app:"
+    open -a /Applications/Microsoft\ Remote\ Desktop.app "rdp://full%20address=s:$vmIpAddress:3389&username=$adminUsername&audiomode=i:2&disable%20themes=i:1"
+fi
