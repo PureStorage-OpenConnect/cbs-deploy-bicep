@@ -1,0 +1,4 @@
+using 'templates/prerequisites.bicep'
+
+param location = 'westeurope'
+param resourceGroupName = 'your-resource-group-name'

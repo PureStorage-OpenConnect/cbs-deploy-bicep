@@ -1,0 +1,13 @@
+using 'templates/cbs-managed-app.bicep'
+
+param location = 'westeurope'
+param resourceName = 'my-resource-name'
+param resourceGroupName = 'your-resource-group-name'
+param alertRecipients = 'my-email-address@contoso.dev'
+param arrayName = 'my-array-name'
+param licenseKey = 'CBS-TRIAL-LICENSE'
+param cbsModelSku = 'V20MUR1'
+param orgDomain = 'myorgdomain.dev'
+param managedUserIdentityId = '/subscriptions/<subscriptionId>/resourceGroups/<rgName>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<uminame>'
+param vnetName = 'my-vnet-name'
+param availabilityZone = 1
