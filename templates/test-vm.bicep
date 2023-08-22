@@ -10,7 +10,12 @@ Parameters
 @description('Location where resources will be deployed. Defaults to resource group location.')
 param location string
 
+@description('Subscription id where resources will be deployed.')
+#disable-next-line no-unused-params
+param subscriptionId string
+
 @description('RG where the VM will be deployed.')
+#disable-next-line no-unused-params
 param resourceGroupName string
 
 @description('The name of the VM')
@@ -32,31 +37,32 @@ param PureManagementPassword string
 param virtualMachineSize string = 'Standard_D2s_v5'
 
 @description('Specify the name of an existing VNet in the same resource group')
-param vNetName string
-
-@description('Specify the resoruce group of the existing vNET')
-param existingVnetResourceGroup string
+param vNetName string = ''
 
 @description('Specify the name of the subnet')
-param existingSubnetName string
-
+param existingSubnetName string = ''
 
 param adminUsername string
 @secure()
 param adminPassword string
 
+param extensionFileUrl string
+
 module variables 'modules/variables.bicep' = {
   name: 'scriptVariables'
   params: {}
 }
+var compiledVnetName = (vNetName != '')?vNetName:variables.outputs.vnetName
 
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' existing = {
-  name: vNetName
+  name: compiledVnetName
 }
+
+var compiledSubnetName = (existingSubnetName != '')?existingSubnetName:variables.outputs.subnetNameForISCSi
 
 resource vmSubnet 'Microsoft.Network/virtualNetworks/subnets@2023-04-01' existing = {
   parent: virtualNetwork
-  name: variables.outputs.subnetNameForISCSi
+  name: compiledSubnetName
 }
 
 module testVmPublicIp 'modules/public-ip.bicep' = {
@@ -73,7 +79,7 @@ resource testVmNsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
   location: location
   properties: {
     securityRules: [ {
-        name: 'SSH'
+        name: 'RDP'
         properties: {
           priority: 300
           protocol: 'Tcp'
@@ -82,7 +88,7 @@ resource testVmNsg 'Microsoft.Network/networkSecurityGroups@2022-01-01' = {
           sourceAddressPrefix: whitelistedSourceAddress
           sourcePortRange: '*'
           destinationAddressPrefix: '*'
-          destinationPortRange: '22'
+          destinationPortRange: '3389'
         }
       }
     ]
@@ -117,6 +123,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
   name: virtualMachineName
   location: location
   properties: {
+    
     hardwareProfile: {
       vmSize: virtualMachineSize
     }
@@ -128,9 +135,9 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
         }
       }
       imageReference: {
-        publisher: 'Canonical'
-        offer: '0001-com-ubuntu-server-jammy'
-        sku: '22_04-lts-gen2'
+        publisher: 'MicrosoftSQLServer'
+        offer: 'sql2019-ws2019'
+        sku: 'Standard'
         version: 'latest'
       }
     }
@@ -145,6 +152,73 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2022-03-01' = {
       computerName: virtualMachineName
       adminUsername: adminUsername
       adminPassword: adminPassword
+      windowsConfiguration: {
+        enableAutomaticUpdates: true
+        provisionVMAgent: true
+      }
     }
   }
 }
+
+resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@2023-03-01' = {
+  name: '${virtualMachineName}-CustomScriptExtension'
+  location: location
+  parent: virtualMachine
+  properties: {
+    provisionAfterExtensions: []
+    type: 'CustomScriptExtension'
+    typeHandlerVersion: '1.9'
+    publisher: 'Microsoft.Compute'
+    settings: {
+      fileUris: split(extensionFileUrl, ' ')
+    }
+    protectedSettings: {
+      commandToExecute: 'powershell.exe -Command "./setup-demo-cbs.ps1 -PureManagementIP ${PureManagementIP} -PureManagementUser ${PureManagementUser} -PureManagementPassword ${PureManagementPassword}; exit 0;"'
+    }
+  }
+}
+
+
+var diskConfigurationType = 'NEW'
+var tempDbPath = 'T:\\SQLTemp'
+var logPath = 'L:\\SQLLog'
+var dataPath = 'S:\\SQLData'
+
+var storageWorkloadType = 'General'
+
+/*
+resource sqlVirtualMachine 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-07-01-preview' = {
+  dependsOn: [
+    customScriptExtension
+  ]
+  name: virtualMachineName
+  location: location
+  properties: {
+    virtualMachineResourceId: virtualMachine.id
+    sqlManagement: 'Full'
+    sqlServerLicenseType: 'PAYG'
+    storageConfigurationSettings: {
+      diskConfigurationType: diskConfigurationType
+      storageWorkloadType: storageWorkloadType
+      sqlDataSettings: {
+        luns: [1]
+        defaultFilePath: dataPath
+      }
+      sqlLogSettings: {
+        luns: [2]
+        defaultFilePath: logPath
+      }
+      sqlTempDbSettings: {
+        luns: [3]
+        defaultFilePath: tempDbPath
+      }
+    }
+  }
+}
+*/
+
+output vmIpAddress string = testVmPublicIp.outputs.ipAddress
+output adminUsername string = adminUsername
+
+#disable-next-line outputs-should-not-contain-secrets
+output adminPassword string = adminPassword

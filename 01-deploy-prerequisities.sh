@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 SHOW_DEBUG_OUTPUT=false
 
 escape_quotes(){
@@ -28,11 +28,13 @@ paramsJson=`bicep build-params $parametersfilename --stdout  | jq -r ".parameter
 
 
 location=`echo $paramsJson | jq -r ".parameters.location.value"`
+subscriptionId=`echo $paramsJson | jq -r ".parameters.subscriptionId.value"`
 
 # Deploy our infrastructure
 output=$(az deployment sub create \
   --name "CBS-deploy-prereq-bicep-sh" \
   --location $location \
+  --subscription $subscriptionId \
   --template-file "templates/prerequisites.bicep" \
   --parameters $parametersfilename
   )

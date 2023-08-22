@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 SHOW_DEBUG_OUTPUT=false
 
 escape_quotes(){
@@ -43,12 +44,14 @@ paramsJson=`bicep build-params $parametersfilename --stdout  | jq -r ".parameter
 
 
 location=`echo $paramsJson | jq -r ".parameters.location.value"`
+subscriptionId=`echo $paramsJson | jq -r ".parameters.subscriptionId.value"`
 resourceGroupName=`echo $paramsJson | jq -r ".parameters.resourceGroupName.value"`
 
 # Deploy our infrastructure
 output=$(az deployment group create \
   --name "CBS-deploy-sh" \
   --resource-group $resourceGroupName \
+  --subscription $subscriptionId \
   --template-file "templates/cbs-managed-app.bicep" \
   --parameters $parametersfilename
   )

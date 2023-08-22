@@ -15,6 +15,10 @@ param location string
 @description('TODO: the managed application name')
 param resourceName string
 
+@description('Subscription id where resources will be deployed.')
+#disable-next-line no-unused-params
+param subscriptionId string
+
 @description('RG where the managed app will be deployed.')
 param resourceGroupName string
 

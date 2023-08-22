@@ -11,6 +11,10 @@ Parameters
 @description('Location where resources will be deployed. Defaults to resource group location.')
 param location string
 
+@description('Subscription id where resources will be deployed.')
+#disable-next-line no-unused-params
+param subscriptionId string
+
 @description('RG where resources will be deployed.')
 param resourceGroupName string
 

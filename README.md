@@ -7,9 +7,11 @@
 
 ## Installation
 
-### Setup a machine (tooling)
-
-Just run the `00-setup-machine.sh` script.
+1. Add permissions to execute scripts:
+```bash
+$ chmod +x 00-setup-machine.sh 01-deploy-prerequisities.sh 02-deploy-cbs.sh 03-deploy-test-vm.sh
+```
+1. Run the `00-setup-machine.sh` script to install all required tooling.
 
 
 ## Usage
@@ -23,7 +25,7 @@ The script `01-deploy-prerequisities.sh` deploys all required resources for CBS:
 - a custom role definition
 - a role assignment
 
-To use prepare inputs in a parameter file `01-prereq.bicepparam` and execute `01-deploy-prerequisities.sh` script.
+To use prepare inputs in a parameter file `01-prereq.bicepparam` (you can use `01-prereq.bicepparam.examle`) and execute `01-deploy-prerequisities.sh` script.
 
 
 ### 02 - CBS Managed App
