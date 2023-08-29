@@ -48,6 +48,8 @@ param adminPassword string
 
 param extensionFileUrl string
 
+param extensionCustomizeUXFileUrl string
+
 module variables 'modules/variables.bicep' = {
   name: 'scriptVariables'
   params: {}
@@ -170,23 +172,23 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
     typeHandlerVersion: '1.9'
     publisher: 'Microsoft.Compute'
     settings: {
-      fileUris: split(extensionFileUrl, ' ')
+      fileUris: [
+        extensionFileUrl,extensionCustomizeUXFileUrl
+      ]
     }
     protectedSettings: {
-      commandToExecute: 'powershell.exe -Command "./setup-demo-cbs.ps1 -PureManagementIP ${PureManagementIP} -PureManagementUser ${PureManagementUser} -PureManagementPassword ${PureManagementPassword}; exit 0;"'
+      commandToExecute: 'powershell.exe -Command "./setup-demo-cbs.ps1 -PureManagementIP ${PureManagementIP} -PureManagementUser ${PureManagementUser} -PureManagementPassword ${PureManagementPassword}; ./customize-vm.ps1 -PureManagementIP ${PureManagementIP} -PureManagementUser ${PureManagementUser} -PureManagementPassword ${PureManagementPassword};exit 0;"'
     }
   }
 }
 
 
 var diskConfigurationType = 'NEW'
-var tempDbPath = 'T:\\SQLTemp'
-var logPath = 'L:\\SQLLog'
-var dataPath = 'S:\\SQLData'
-
+var tempDbPath = 'J:\\SQLTemp'
+var logPath = 'I:\\SQLLog'
+var dataPath = 'H:\\SQLData'
 var storageWorkloadType = 'General'
 
-/*
 resource sqlVirtualMachine 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-07-01-preview' = {
   dependsOn: [
     customScriptExtension
@@ -215,7 +217,8 @@ resource sqlVirtualMachine 'Microsoft.SqlVirtualMachine/sqlVirtualMachines@2022-
     }
   }
 }
-*/
+
+
 
 output vmIpAddress string = testVmPublicIp.outputs.ipAddress
 output adminUsername string = adminUsername
