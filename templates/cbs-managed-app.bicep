@@ -25,9 +25,6 @@ param resourceGroupName string
 @description('RG where the managed resources will be deployed.')
 param managedResourceGroupName string = ''
 
-param planName string = 'cbs_azure_6_4_9'
-param planProduct string = 'pure_storage_cloud_block_store_deployment'
-
 param tagsByResource object = {}
 
 @description('TODO:Comma-separated, doesn\'t work!')
@@ -65,8 +62,11 @@ param subnetNameForReplication string = ''
 @description('Optional input that denotes the identity of a Fusion Storage Endpoint Collection, obtained during Azure Portal GUI or CLI deployment')
 param fusionSecIdentity object = {}
 
-var cbsPlanPublisher = 'purestoragemarketplaceadmin'
-var cbsPlanVersion = '1.0.1'
+param azureMarketPlacePlanPublisher string = 'purestoragemarketplaceadmin'
+param azureMarketPlacePlanVersion string = '1.0.1'
+param azureMarketPlacePlanName string = 'cbs_azure_6_4_9'
+
+param azureMarketPlacePlanOffer string = 'pure_storage_cloud_block_store_deployment'
 
 module variables 'modules/variables.bicep' = {
   name: 'scriptVariables'
@@ -100,10 +100,10 @@ resource cbsManagedApp 'Microsoft.Solutions/applications@2021-07-01' =  {
   kind: 'MarketPlace'
   location: location
   plan:{
-    name: planName
-    product: planProduct
-    publisher: cbsPlanPublisher
-    version: cbsPlanVersion
+    name: azureMarketPlacePlanName
+    product: azureMarketPlacePlanOffer
+    publisher: azureMarketPlacePlanPublisher
+    version: azureMarketPlacePlanVersion
   }
   identity: managedUserIdentity
   properties:{

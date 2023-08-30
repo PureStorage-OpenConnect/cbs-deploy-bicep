@@ -2,51 +2,79 @@
 set -e
 SHOW_DEBUG_OUTPUT=false
 
-escape_quotes(){
-    echo $@ | sed s/'"'/'\\"'/g
-}
-
-
-curlwithcode() {
-    code=0
-    # Run curl in a separate command, capturing output of -w "%{http_code}" into statuscode
-    # and sending the content to a file with -o >(cat >/tmp/curl_body)
-    statuscode=$(curl -w "%{http_code}" \
-        -o >(cat >/tmp/curl_body) \
-        "$@"
-    ) || code="$?"
-
-    body="$(cat /tmp/curl_body)"
-    echo "{\"statusCode\": $statuscode,"
-    echo "\"exitCode\": $code,"
-    echo "\"body\": \"$(escape_quotes $body)\"}"
-}
-
-echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
-echosuccess() { printf "\033[0;32m%s\n\033[0m" "$*" >&2; }
+source $(dirname $0)/script-modules/common.sh
 
 
 # Read the bicep parameters
 parametersfilename='./02-cbs.bicepparam'
 
-echo "           "
-echo "           "
-echo "  CBS DEPLOYMENT   "
-echo "           "
-echo "           "
-echo "           "
 
+source $(dirname $0)/script-modules/ascii-logo.sh
 
-
-echo "Deploying CBS managed app"
-
-paramsJson=`bicep build-params $parametersfilename --stdout  | jq -r ".parametersJson"`
-
+echo -e "
+------------------------------------------------------------
+            Pure Cloud Block Storage - Deployment
+                (c) 2023 Pure Storage
+                        v$CLI_VERSION
+------------------------------------------------------------
+"
+bicep_raw=`bicep build-params $parametersfilename --stdout`
+paramsJson=`echo $bicep_raw | jq -r ".parametersJson"`
 
 location=`echo $paramsJson | jq -r ".parameters.location.value"`
 subscriptionId=`echo $paramsJson | jq -r ".parameters.subscriptionId.value"`
 resourceGroupName=`echo $paramsJson | jq -r ".parameters.resourceGroupName.value"`
 
+echo -e "${C_BLUE3}${C_GREY85}
+[Step #1] Enabling CBS deployment for selected subscription $subscriptionId:${NO_FORMAT}
+
+"
+
+
+
+AZURE_MARKETPLACE_PLAN_NAME=`echo $paramsJson | jq -r .parameters.azureMarketPlacePlanName.value`
+if [ "$AZURE_MARKETPLACE_PLAN_NAME" = "null"  ];
+then
+    AZURE_MARKETPLACE_PLAN_NAME=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanName.defaultValue`
+fi
+
+AZURE_MARKETPLACE_PUBLISHER=`echo $paramsJson | jq -r .parameters.azureMarketPlacePlanPublisher.value`
+if [ "$AZURE_MARKETPLACE_PUBLISHER" = "null"  ];
+then
+    AZURE_MARKETPLACE_PUBLISHER=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanPublisher.defaultValue`
+fi
+
+AZURE_MARKETPLACE_PLAN_OFFER=`echo $paramsJson | jq -r .parameters.azureMarketPlacePlanOffer.value`
+if [ "$AZURE_MARKETPLACE_PLAN_OFFER" = "null"  ];
+then
+    AZURE_MARKETPLACE_PLAN_OFFER=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanOffer.defaultValue`
+fi
+
+enablementOutput=$(az vm image terms accept \
+    --subscription $subscriptionId \
+    --publisher $AZURE_MARKETPLACE_PUBLISHER \
+    --offer $AZURE_MARKETPLACE_PLAN_OFFER \
+    --plan $AZURE_MARKETPLACE_PLAN_NAME)
+
+accepted=`echo $enablementOutput | jq -r '.properties.outputs.accepted.value'`
+if [ $accepted ]
+then 
+    echosuccess "[COMPLETED] Plan '$AZURE_MARKETPLACE_PLAN_NAME' enabled."
+else
+    echoerr "[Step #1][FAILURE] Enablement failed - offer: $AZURE_MARKETPLACE_PLAN_OFFER, plan: $AZURE_MARKETPLACE_PLAN_NAME, publisher: $AZURE_MARKETPLACE_PUBLISHER"
+    echo $enablementOutput
+    exit 1;
+fi
+
+echo -e "${C_BLUE3}${C_GREY85}
+[Step #2] Deploying CBS managed app:${NO_FORMAT}
+"
+echo "
+Subscription Id: $subscriptionId
+RG name: $resourceGroupName
+Location: $location
+
+"
 # Deploy our infrastructure
 output=$(az deployment group create \
   --name "CBS-deploy-sh" \
@@ -70,7 +98,7 @@ cbsiSCSIEndpointCT1=`echo $output | jq -r '.properties.outputs.cbsiSCSIEndpointC
 echo ""
 echo ""
 echo ""
-echosuccess "The deployment of CBS managed application has been completed."
+echosuccess "[COMPLETED] The deployment of CBS managed application has been completed."
 echo ""
 
 echo " ******** Array parameters ********"

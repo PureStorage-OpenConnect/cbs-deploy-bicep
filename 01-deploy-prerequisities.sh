@@ -2,33 +2,41 @@
 set -e
 SHOW_DEBUG_OUTPUT=false
 
-escape_quotes(){
-    echo $@ | sed s/'"'/'\\"'/g
-}
 
-
-echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
-echosuccess() { printf "\033[0;32m%s\n\033[0m" "$*" >&2; }
-
+source $(dirname $0)/script-modules/common.sh
 
 # Read the bicep parameters
 parametersfilename='01-prereq.bicepparam'
 
-echo "           "
-echo "           "
-echo "  CBS DEPLOYMENT - PREREQUISITES   "
-echo "           "
-echo "           "
-echo "           "
+source $(dirname $0)/script-modules/ascii-logo.sh
 
+echo -e "
+------------------------------------------------------------
+    Pure Cloud Block Storage - Prerequisites Deployment 
+                (c) 2023 Pure Storage
+                        v$CLI_VERSION
+------------------------------------------------------------
+"
 
-echo "Deploying required infrastructure"
 
 paramsJson=`bicep build-params $parametersfilename --stdout  | jq -r ".parametersJson"`
 
 
 location=`echo $paramsJson | jq -r ".parameters.location.value"`
 subscriptionId=`echo $paramsJson | jq -r ".parameters.subscriptionId.value"`
+resourceGroupName=`echo $paramsJson | jq -r ".parameters.resourceGroupName.value"`
+
+echo -e "${C_BLUE3}${C_GREY85}
+[Step #1] Deploying required infrastructure in subscription $subscriptionId:${NO_FORMAT}
+
+"
+echo "
+Subscription Id: $subscriptionId
+RG name: $resourceGroupName
+Location: $location
+
+"
+
 
 # Deploy our infrastructure
 output=$(az deployment sub create \
@@ -66,5 +74,5 @@ echo " ----------------------------------------------"
 echo ""
 echo ""
 echo ""
-echosuccess "The deployment of prerequisities has been completed. Now you can proceed to deployment of CBS itself with *02-deploy-cbs.sh*."
+echosuccess "[COMPLETED] The deployment of prerequisities has been completed. Now you can proceed to deployment of CBS with ${C_ORANGERED1}${C_GREY100}02-deploy-cbs.sh${NO_FORMAT} file."
 echo ""
