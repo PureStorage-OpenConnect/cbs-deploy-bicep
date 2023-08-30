@@ -13,11 +13,12 @@ source $(dirname $0)/script-modules/ascii-logo.sh
 
 echo -e "
 ------------------------------------------------------------
-            Pure Cloud Block Storage - Deployment
+        Pure Cloud Block Storage - CBS Deployment
                 (c) 2023 Pure Storage
                         v$CLI_VERSION
 ------------------------------------------------------------
 "
+
 bicep_raw=`bicep build-params $parametersfilename --stdout`
 paramsJson=`echo $bicep_raw | jq -r ".parametersJson"`
 

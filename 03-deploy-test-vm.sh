@@ -2,44 +2,39 @@
 set -e
 SHOW_DEBUG_OUTPUT=false
 
-escape_quotes(){
-    echo $@ | sed s/'"'/'\\"'/g
-}
-
-
-curlwithcode() {
-    code=0
-    # Run curl in a separate command, capturing output of -w "%{http_code}" into statuscode
-    # and sending the content to a file with -o >(cat >/tmp/curl_body)
-    statuscode=$(curl -w "%{http_code}" \
-        -o >(cat >/tmp/curl_body) \
-        "$@"
-    ) || code="$?"
-
-    body="$(cat /tmp/curl_body)"
-    echo "{\"statusCode\": $statuscode,"
-    echo "\"exitCode\": $code,"
-    echo "\"body\": \"$(escape_quotes $body)\"}"
-}
-
-echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
-echosuccess() { printf "\033[0;32m%s\n\033[0m" "$*" >&2; }
+source $(dirname $0)/script-modules/common.sh
 
 
 # Read the bicep parameters
 parametersfilename='./03-test-vm.bicepparam'
 
-echo "           "
-echo "           "
-echo "  TEST VM DEPLOYMENT   "
-echo "           "
-echo "           "
-echo "           "
+source $(dirname $0)/script-modules/ascii-logo.sh
+
+echo -e "
+------------------------------------------------------------
+        Pure Cloud Block Storage - Test VM Deployment
+                (c) 2023 Pure Storage
+                        v$CLI_VERSION
+------------------------------------------------------------
+"
+
+echo -e "${C_BLUE3}${C_GREY85}
+[Step #1] Getting your current IP address...
+
+"
 
 
-
-echo "Deploying the VM for testing"
 myIpAddress=`curl ifconfig.me 2> /dev/null`
+
+if [ -z "$myIpAddress"];
+then
+    echosuccess "Your public IP address: $myIpAddress"
+    echo "There will be a network security group restricting access just for your IP address."
+else
+    echoerr "Something failed during gathering public IP address!"
+    exit 1;
+fi
+
 
 paramsJson=`bicep build-params $parametersfilename --stdout  | jq -r ".parametersJson"`
 
@@ -47,6 +42,14 @@ tmpJsonFilename='tmp03.json'
 subscriptionId=`echo $paramsJson | jq -r ".parameters.subscriptionId.value"`
 resourceGroupName=`echo $paramsJson | jq -r ".parameters.resourceGroupName.value"`
 (echo $paramsJson | sed "s/\$myIpAddress/$myIpAddress/") > $tmpJsonFilename
+
+
+
+echo -e "${C_BLUE3}${C_GREY85}
+[Step #2] Deploying VM into subscription $subscriptionId into RG ${resourceGroupName}:${NO_FORMAT}
+
+"
+
 
 # Deploy our infrastructure
 output=$(az deployment group create \
@@ -87,10 +90,12 @@ echo ""
 
 if [ -n "${WSLENV}" ];
 then
-    echo "WSL only:"
+    echo -e "${C_BLUE3}${C_GREY85}
+[Step #3][Optional] Opening Remote Desktop Connection session into the test VM:${NO_FORMAT}
+"
     echo " Adding credentials to cmdkey:"
     cmdkey.exe /generic:"$vmIpAddress" /user:"$adminUsername" /pass:"$adminPassword"
     echo " Trying to open RDP connection..."
     mstsc.exe /v:$vmIpAddress
-    echo 'The RDP connection should be opened.'
+    echosuccess 'The RDP connection should be opened.'
 fi

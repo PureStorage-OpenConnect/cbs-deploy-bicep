@@ -2,10 +2,11 @@
 
 ## Prerequisites
 - bash
-- Windows/Linux/MacOS
+- Windows (**WSL recommended**)/Linux/MacOS
 - `az-cli`, `bicep-cli`, `jq` (all should get installed with setup-machine script)
 
 ## Installation
+
 
 1. Add permissions to execute scripts:
 ```bash
@@ -36,4 +37,7 @@ To use prepare inputs in a parameter file `02-cbs.bicepparam` and execute `02-de
 Please keep in mind, you need to pass into the parameter file `02-cbs.bicepparam` some outputs from `01-deploy-prerequisities.sh` script.
 
 ### 03 - Test VM (WiP)
-TODO: description
+
+The script `03-deploy-test-vm.sh` deploys a test Windows Server VM with MS SQL server installed.
+
+It automatically creates 3 volumes in the CBS array, and mount them on the VM via iSCSI to be used by SQL server.
