@@ -12,7 +12,7 @@ Parameters
 @description('Location where resources will be deployed. Defaults to resource group location.')
 param location string
 
-@description('TODO: the managed application name')
+@description('The name of application resource (Azure Managed App)')
 param resourceName string
 
 @description('Subscription id where resources will be deployed.')
@@ -27,17 +27,21 @@ param managedResourceGroupName string = ''
 
 param tagsByResource object = {}
 
-@description('TODO:Comma-separated, doesn\'t work!')
+@description('Email addresses (comma-delimited) for array alerts')
 param alertRecipients string
 
-@description('TODO: alphanumeric')
+@description('CBS array name in Purity')
 param arrayName string
 
 @allowed(['V10MUR1', 'V20MUR1', 'V20MP2R2'])
 param cbsModelSku string
 
 @allowed([1,2,3])
-@description('TODO: see documentation what AZs are available in the given region')
+@description('''
+The availability zone (AZ) for VMs inside CBS. 
+Check the support article, if given AZ is currently supported within region
+https://support.purestorage.com/Pure_Cloud_Block_Store/How_to_Check_Instance_Availability_Required_for_Pure_Cloud_Block_Store_Deployment#Check_Azure_Resources
+''')
 param availabilityZone int = 1
 
 @description('''
@@ -47,9 +51,13 @@ param licenseKey string
 
 param orgDomain string
 
-@description('TODO:SSH public key for \'pureuser\' login in OpenSSH format')
+@description('SSH public key for \'pureuser\' login in OpenSSH format')
 param sshPublicKey string = ''
 
+@description('''
+Full resource id of user-managed identity with permission to join the vNET.
+In format: `/subscriptions/<subscriptionId>/resourceGroups/<rgName>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<uminame>`
+''')
 param managedUserIdentityId string
 
 @description('''
@@ -138,7 +146,7 @@ resource cbsManagedApp 'Microsoft.Solutions/applications@2021-07-01' =  {
   identity: managedUserIdentity
   properties:{
     managedResourceGroupId: subscriptionResourceId('Microsoft.Resources/resourceGroups', managedRgName)
-    //TODO:
+    //TODO: currently not implemented in Bicep module
     jitAccessPolicy:{
       jitAccessEnabled: false
     }

@@ -139,6 +139,35 @@ documentation (including, without limitation, damages for loss of business profi
 business interruption, loss of business information, or other pecuniary loss), even if
 such person has been advised of the possibility of such damages.*
 
+## Contributing
+
+We welcome contributions to our project! Here's how you can report issues or submit pull requests:
+
+### Reporting Issues
+
+If you encounter any bugs or issues while using our project, please report them by creating an issue in our GitHub repository. Here's how you can do it:
+
+1. Go to the **Issues** tab of our repository and click on the **New Issue** button.
+2. Choose the appropriate issue template, if available, or create a blank issue.
+3. Provide a descriptive title and detailed information about the issue, including steps to reproduce it, expected behavior, and any relevant screenshots or logs.
+4. Submit the issue.
+
+Our team will review the issue and provide updates on its status. Thank you for helping us improve our project!
+
+### Submitting Pull Requests
+
+If you have made changes to the code that you would like to contribute back to the project, you can do so by submitting a pull request. Here's how you can do it:
+
+1. Fork our repository and create a new branch for your changes.
+2. Make your changes and commit them to your branch.
+3. Push your changes to your forked repository.
+4. Go to the **Pull Requests** tab of our repository and click on the **New Pull Request** button.
+5. Choose your forked repository and branch as the source, and our repository as the destination.
+6. Provide a descriptive title and detailed information about your changes.
+7. Submit the pull request.
+
+Our team will review your changes and provide feedback. If everything looks good, we will merge your changes into our repository. Thanks for your contribution!
+
 
 ## Authors
 
