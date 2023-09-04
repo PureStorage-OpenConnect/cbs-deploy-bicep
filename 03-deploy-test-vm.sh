@@ -86,7 +86,7 @@ echo " -----------------------------------------------"
 echo ""
 echo ""
 
-
+# if running in Windows Subsystem in Linux
 if [ -n "${WSLENV}" ];
 then
     echo -e "${C_BLUE3}${C_GREY85}
@@ -97,4 +97,7 @@ then
     echo " Trying to open RDP connection..."
     mstsc.exe /v:$vmIpAddress
     echosuccess 'The RDP connection should be opened.'
+
+    echo "For new RDP session use command:
+> mstsc.exe /v:$vmIpAddress"
 fi

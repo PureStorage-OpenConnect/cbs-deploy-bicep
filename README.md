@@ -2,8 +2,10 @@
 
 ## Prerequisites
 - bash
-- Windows (**WSL recommended**)/Linux/MacOS
+- Windows (**WSL recommended**) / Linux<sup>[1]</sup> / MacOS<sup>[2]</sup>
 - `az-cli`, `bicep-cli`, `jq` (all should get installed with setup-machine script)
+
+<small><sup>[1],[2]</sup> not fully tested, please report any issue you find</small>
 
 ## Installation
 
@@ -40,24 +42,35 @@ These modules can be customized and modified, for example, to be incorporated in
 
 #### Module #01 - CBS Prerequisites
 
-The script `01-deploy-prerequisities.sh` (Bicep template file `prerequisities.bicep`) deploys all required resources for CBS:
+The script `01-deploy-prerequisities.sh` (Bicep template file `prerequisities.bicep`) deploys all required resources for CBS.
+
+**Deployed resources:**
 - vNET resource, including all required subnets
 - public IP address + NAT gateway for `system` subnet
 - user managed identity
 - a custom role definition
 - a role assignment
+<br>
 
-To use prepare inputs in a parameter file `01-prereq.bicepparam` (you can use `01-prereq.bicepparam.example`) and execute `01-deploy-prerequisities.sh` script.
-
-
+To use this module:
+1. rename the file `01-prereq.bicepparam.example` to `01-prereq.bicepparam` 
+1. enter the necessary values into the `01-prereq.bicepparam` file
+1. execute the script `./01-deploy-prerequisities.sh`
 
 
 #### Module #02 - CBS Managed App
 
 The script `02-deploy-cbs.sh` (Bicep template file `cbs-managed-app.bicep`) deploys CBS managed application itself.
 
-To use prepare inputs in a parameter file `02-cbs.bicepparam` and execute `02-deploy-cbs.sh` script.
-Please keep in mind, you need to pass into the parameter file `02-cbs.bicepparam` some outputs from `01-deploy-prerequisities.sh` script.
+To use this module:
+1. rename the file `02-cbs.bicepparam.example` to `02-cbs.bicepparam` 
+
+1. enter the necessary values into the `02-cbs.bicepparam` file<br>
+    <em><small>Remember that these Bicep modules are separate from each other. If you want to run them one after the other, you'll need to pass some output values from the `01-deploy-prerequisities.sh` script into the `02-cbs.bicepparam` parameter file. </small></em>
+
+1. execute the script `./02-deploy-cbs.sh`
+
+
 
 > [!NOTE]  
 > If you intend to use only a Bicep template for the programmatic deployment of CBS, you must also accept the Azure Marketplace license for the given product/plan. Since Azure does not support accepting licenses via Bicep templates, you must accept the license using PowerShell or Azure CLI before executing the Bicep deployment.
@@ -68,18 +81,48 @@ The script `03-deploy-test-vm.sh` deploys a test Windows Server VM with MS SQL s
 
 It automatically creates 3 volumes in the CBS array, and mount them on the VM via iSCSI to be used by SQL server.
 
+
+##### Using the Test VM
+
+The Test VM is configured to accept standard RDP connections from your public IP address.
+
+In WSL, the deployment script should automatically open an RDP session to the VM.
+If not, use a command:
+```bash
+$ mstsc.exe /v:<<public IP address>>
+```
+
+Inside the VM there is a shortcut on the Desktop called `Open CBS Console` for CBS management.
+
+**Default credentials:**
+
+User: *pureuser*<br>
+Password: *pureuser*
+
+**Please change these credentials immediately.**
+
+
 ## Limitations / Troubleshooting
 
 
-### one common vNET
-01-prereq:
-TODO: only one common vNET support, could be in another RG but only one
+### Common Deployment vNET 
 
-### custom role/assignment re-deployment fails
-TODO: only onetimer, manual remove
+The prerequisites module only supports a single virtual network scenario where all required subnets are deployed within one common vNET, as this is considered best practice. The use of multiple vNETs that are peered with each other is not supported by this framework.
 
-### test VM - sql extension fails
-TODO: It's because of existing volumes in CBS, just delete them and execute the deployment again.
+However, the vNET does not have to be deployed within the same vNET. You can use the optional `vnetRGName` (for Module #02) parameter to specify the resource group for the vNET.
+
+### Test VM - SQL Extension Fails
+
+```json
+"code":"Ext_StorageConfigurationSettings_ArgumentError",
+"message":"Error: 'Failed to get all physical disks in the same storage pool.'"
+```
+
+
+The script used for deploying the test VM is intended for demonstration purposes only and is not of production quality. It does not have the ability to detect existing volumes in the CBS and fails on that. 
+
+For demonstration purposes, simply delete the volumes in the CBS and redeploy the test VM.
+
 
 ## Disclaimer
 
