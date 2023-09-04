@@ -1,7 +1,4 @@
 #!/bin/bash
-set -e
-SHOW_DEBUG_OUTPUT=false
-
 
 source $(dirname $0)/script-modules/common.sh
 
@@ -12,12 +9,11 @@ source $(dirname $0)/script-modules/ascii-logo.sh
 
 echo -e "
 ------------------------------------------------------------
-    Pure Cloud Block Storage - Prerequisites Deployment 
+    Pure Cloud Block Store - Prerequisites Deployment 
                 (c) 2023 Pure Storage
                         v$CLI_VERSION
 ------------------------------------------------------------
 "
-
 
 paramsJson=`bicep build-params $parametersfilename --stdout  | jq -r ".parametersJson"`
 

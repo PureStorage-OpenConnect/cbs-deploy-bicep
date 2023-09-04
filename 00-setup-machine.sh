@@ -50,7 +50,6 @@ if [ $? == 0 ]; then
 else
   echo "Installing bicep"
   az bicep install
-  exit 1;
 fi
 
 jq --version
@@ -74,7 +73,7 @@ echo "Asking user to log in...";
 az login
 if [ $? == 0 ]; then
   echosuccess "
-  Your machine should be ready! Now proceed with ./deploy.sh script
+  Your machine should be ready! Now proceed with './01-deploy-prerequisities.sh' script
   
   ";
 else

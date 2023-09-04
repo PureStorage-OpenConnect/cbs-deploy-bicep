@@ -13,7 +13,7 @@ source $(dirname $0)/script-modules/ascii-logo.sh
 
 echo -e "
 ------------------------------------------------------------
-        Pure Cloud Block Storage - CBS Deployment
+        Pure Cloud Block Store - CBS Deployment
                 (c) 2023 Pure Storage
                         v$CLI_VERSION
 ------------------------------------------------------------

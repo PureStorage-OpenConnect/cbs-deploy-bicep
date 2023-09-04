@@ -1,5 +1,5 @@
 
-echo -e "${C_ORANGERED1}${C_GREY100}"
+echo -e "${C_ORANGERED1}${C_GREY0}"
 
 cat << "EOF"
   _____                   _____ _                              
@@ -11,6 +11,5 @@ cat << "EOF"
                                                     __/ |      
                                                    |___/       
 EOF
-
 echo -e "${NO_FORMAT}"
 

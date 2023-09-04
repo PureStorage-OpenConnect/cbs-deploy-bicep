@@ -1,0 +1,55 @@
+# location where the all resources will be deployed, e.g. 'eastus'
+location='<< location >>'
+
+# subscription ID where the all resources will be deployed
+subscriptionId='<< subscription ID >>'
+
+# resource group (RG) where the all resources will be deployed
+resourceGroupName="test-cbs-e2e-"`date '+%F-%H-%M-%S'`"-rg"
+
+# the availability zone (AZ) for VMs inside CBS, e.g. 1
+# check support article if given AZ is currently supported within region
+# https://support.purestorage.com/Pure_Cloud_Block_Store/How_to_Check_Instance_Availability_Required_for_Pure_Cloud_Block_Store_Deployment#Check_Azure_Resources
+availabilityZone=1
+
+# email addresses (comma-delimited) for array alerts
+alertRecipients='<< email address >>'
+
+# test VM size
+
+virtualMachineSize='Standard_D2s_v5'
+
+# test VM credentials
+adminUsername='<< test VM admin username >>'
+adminPassword='<< test VM admin password >>'
+
+
+
+#####################################
+# Other parameters for advanced users
+#####################################
+
+# managed app resource name in the RG
+arrayResourceName=my-test-cbs
+
+# array name in Purity
+arrayName="${resourceGroupName}-cbs"
+
+# the value 'CBS-TRIAL-LICENSE' is for 40-days trial license
+licenseKey='CBS-TRIAL-LICENSE'
+
+# CBS array SKUs options: 'V10MUR1', 'V20MUR1', 'V20MP2R2'
+cbsModelSku='V20MP2R2'
+
+orgDomain='trialbicep.purestorage'
+
+# scripts used for test VM customization
+extensionFileUrl='https://gist.githubusercontent.com/vjirovsky-pure/e6e4cd5e716a574835225c515d32a7f2/raw/c5d320dd1aae1674f42c1470f3defcca10ed7046/setup-demo-cbs.ps1'
+extensionCustomizeUXFileUrl='https://gist.githubusercontent.com/vjirovsky-pure/b3420b5c7b423c0e053ed335deac4e96/raw/c4785e083737ac7cfe38ba95a623506e177ab67a/customize-vm.ps1'
+
+# this is CBS default username and password
+pureManagementUser='pureuser'
+pureManagementPassword='pureuser'
+
+# test VM resource name
+virtualMachineName='test-win-vm'

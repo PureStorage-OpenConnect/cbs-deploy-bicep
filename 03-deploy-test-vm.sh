@@ -12,7 +12,7 @@ source $(dirname $0)/script-modules/ascii-logo.sh
 
 echo -e "
 ------------------------------------------------------------
-        Pure Cloud Block Storage - Test VM Deployment
+        Pure Cloud Block Store - Test VM Deployment
                 (c) 2023 Pure Storage
                         v$CLI_VERSION
 ------------------------------------------------------------
@@ -23,17 +23,16 @@ echo -e "${C_BLUE3}${C_GREY85}
 
 "
 
+myIpAddress=(`curl ifconfig.me 2> /dev/null`)
 
-myIpAddress=`curl ifconfig.me 2> /dev/null`
-
-if [ -z "$myIpAddress"];
-then
-    echosuccess "Your public IP address: $myIpAddress"
-    echo "There will be a network security group restricting access just for your IP address."
-else
+if [ -z "$myIpAddress" ]; then
     echoerr "Something failed during gathering public IP address!"
     exit 1;
+else
+    echosuccess "Your public IP address: $myIpAddress"
+    echo "There will be a network security group restricting access just for your IP address."
 fi
+
 
 
 paramsJson=`bicep build-params $parametersfilename --stdout  | jq -r ".parametersJson"`
