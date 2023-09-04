@@ -101,3 +101,10 @@ then
     echo "For new RDP session use command:
 > mstsc.exe /v:$vmIpAddress"
 fi
+
+
+# running in MacOS
+if [[ "$OSTYPE" =~ ^darwin ]]; then
+    echo " MacOS detected - trying to open Microsoft Remote Desktop app:"
+    open -a /Applications/Microsoft\ Remote\ Desktop.app "rdp://full%20address=s:$vmIpAddress:3389&username=$adminUsername&audiomode=i:2&disable%20themes=i:1"
+fi
