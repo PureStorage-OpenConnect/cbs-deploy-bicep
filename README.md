@@ -26,6 +26,8 @@ With just one script, you can quickly set up and run a test environment to explo
 
 The script includes all required CBS resources and sets up a test Windows SQL Server VM with mounted CBS volumes via iSCSI.
 
+![Deployed resources with deploy-e2e-demo.sh script](./static/deployed-resources.png)
+
 To use this script:
 1. rename the file `e2e-demo-params.sh.example` to `e2e-demo-params.sh` 
 1. enter the necessary values into the `e2e-demo-params.sh` file
