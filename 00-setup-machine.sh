@@ -4,12 +4,12 @@ echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
 echosuccess() { printf "\033[0;32m%s\n\033[0m" "$*" >&2; }
 
 # Install the az (with bicep)
-echo "Installing tools"
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
+echo "Installing tools:"
 
 #4.5. Install the Azure CLI packages, bicep, jq, .NET, zip
 if [[ "$OSTYPE" =~ ^linux ]]; then
+  curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
   sudo apt -qy install jq
 
   curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-linux-x64
@@ -20,6 +20,10 @@ if [[ "$OSTYPE" =~ ^linux ]]; then
 fi
 
 if [[ "$OSTYPE" =~ ^darwin ]]; then
+
+  # install az cli
+  brew update && brew install azure-cli
+
   # Add the tap for bicep
   brew tap azure/bicep
 
@@ -29,8 +33,10 @@ if [[ "$OSTYPE" =~ ^darwin ]]; then
   else
     brew update
   fi
-  brew install jq
+
   brew install bicep
+  brew install jq
+  
 fi
 
 # check installed tooling
@@ -73,7 +79,7 @@ echo "Asking user to log in...";
 az login
 if [ $? == 0 ]; then
   echosuccess "
-  Your machine should be ready! Now proceed with './01-deploy-prerequisities.sh' script
+  Your machine should be ready! Now proceed with './deploy-e2e-demo.sh' or './01-deploy-prerequisities.sh' script
   
   ";
 else
