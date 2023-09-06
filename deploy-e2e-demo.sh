@@ -66,13 +66,13 @@ echo " ----------------------------------------------"
 echo ""
 echo ""
 echo ""
-echosuccess "[COMPLETED] The deployment of prerequisities has been completed."
+echosuccess "[STEP COMPLETED] The deployment of prerequisities has been completed."
 echo ""
 
 # Read the bicep parameters for CBS
 mainfilename='./templates/cbs-managed-app.bicep'
-tmpfilename='./templates/02-cbs.bicepparam'
-bicep_raw=`bicep generate-params $mainfilename --output-format bicepparam --outfile $tmpfilename`
+tmpfilename='./templates/tmp-e2e-02.bicepparam'
+bicep_gen_raw=`bicep generate-params $mainfilename --output-format bicepparam --outfile $tmpfilename`
 bicep_raw=`bicep build-params $tmpfilename --stdout`
 paramsJson=`echo $bicep_raw | jq -r ".parametersJson"`
 
@@ -96,7 +96,7 @@ enablementOutput=$(az vm image terms accept \
 accepted=`echo $enablementOutput | jq -r '.properties.outputs.accepted.value'`
 if [ $accepted ]
 then 
-    echosuccess "[COMPLETED] Plan '$AZURE_MARKETPLACE_PLAN_NAME' enabled."
+    echosuccess "[STEP COMPLETED] Plan '$AZURE_MARKETPLACE_PLAN_NAME' enabled."
 else
     echoerr "[Step #2][FAILURE] Enablement failed - offer: $AZURE_MARKETPLACE_PLAN_OFFER, plan: $AZURE_MARKETPLACE_PLAN_NAME, publisher: $AZURE_MARKETPLACE_PUBLISHER"
     echo $enablementOutput
@@ -104,7 +104,7 @@ else
 fi
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #3] Deploying CBS managed app:${NO_FORMAT}
+[Step #3] Deploying CBS managed app (~20mins):${NO_FORMAT}
 "
 
 # Deploy our infrastructure
@@ -141,7 +141,7 @@ cbsiSCSIEndpointCT1=`echo $output | jq -r '.properties.outputs.cbsiSCSIEndpointC
 echo ""
 echo ""
 echo ""
-echosuccess "[COMPLETED] The deployment of CBS managed application has been completed."
+echosuccess "[STEP COMPLETED] The deployment of CBS managed application has been completed."
 echo ""
 
 echo " ******** Array parameters ********"
@@ -188,7 +188,7 @@ fi
 
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #5] Deploying VM into subscription $subscriptionId into RG ${resourceGroupName}:${NO_FORMAT}
+[Step #5] Deploying VM into subscription $subscriptionId into RG ${resourceGroupName} (~20mins):${NO_FORMAT}
 
 "
 

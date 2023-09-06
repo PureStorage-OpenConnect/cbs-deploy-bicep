@@ -45,7 +45,7 @@ resourceGroupName=`echo $paramsJson | jq -r ".parameters.resourceGroupName.value
 
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #2] Deploying VM into subscription $subscriptionId into RG ${resourceGroupName}:${NO_FORMAT}
+[Step #2] Deploying VM into subscription $subscriptionId into RG ${resourceGroupName} (~20mins):${NO_FORMAT}
 
 "
 

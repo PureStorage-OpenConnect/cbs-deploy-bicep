@@ -2,13 +2,33 @@
 
 ## Prerequisites
 - bash
-- Windows (**WSL recommended**) / Linux<sup>[1]</sup> / MacOS<sup>[2]</sup>
-- `az-cli`, `bicep-cli`, `jq` (all should get installed with setup-machine script)
+- Docker or Windows (**WSL recommended**) / Linux<sup>[1]</sup> / MacOS<sup>[2]</sup>
+- `az-cli`, `bicep-cli`, `jq` (all should get installed with setup-machine script or included in the Dockerfile)
 
-<small><sup>[1],[2]</sup> not fully tested, please report any issue you find</small>
+<small><sup>[1],[2]</sup> these OS are not fully tested, please report any issue you find</small>
 
 ## Installation
 
+You can also run all commands in this repo on your computer or in container using the prepared Dockerfile in the repo.
+
+
+### In Docker container
+
+1. Build the container image with command:
+    ```bash
+    $ docker build . -t cbs-bicep
+    ```
+1. Run the container:
+    ```bash
+    $ docker run -v .:/data -it cbs-bicep
+    ```
+1. Follow instructions on screen to authenticate into Azure CLI via device code login method.
+
+<br>
+<i>or:</i>
+<br>
+
+### On local computer
 
 1. Add permissions to execute scripts:
 ```bash

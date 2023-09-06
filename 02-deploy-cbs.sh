@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
-SHOW_DEBUG_OUTPUT=false
 
 source $(dirname $0)/script-modules/common.sh
-
 
 # Read the bicep parameters
 parametersfilename='./02-cbs.bicepparam'
@@ -60,7 +58,7 @@ enablementOutput=$(az vm image terms accept \
 accepted=`echo $enablementOutput | jq -r '.properties.outputs.accepted.value'`
 if [ $accepted ]
 then 
-    echosuccess "[COMPLETED] Plan '$AZURE_MARKETPLACE_PLAN_NAME' enabled."
+    echosuccess "[STEP COMPLETED] Plan '$AZURE_MARKETPLACE_PLAN_NAME' enabled."
 else
     echoerr "[Step #1][FAILURE] Enablement failed - offer: $AZURE_MARKETPLACE_PLAN_OFFER, plan: $AZURE_MARKETPLACE_PLAN_NAME, publisher: $AZURE_MARKETPLACE_PUBLISHER"
     echo $enablementOutput
@@ -68,7 +66,7 @@ else
 fi
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #2] Deploying CBS managed app:${NO_FORMAT}
+[Step #2] Deploying CBS managed app (~20mins):${NO_FORMAT} 
 "
 echo "
 Subscription Id: $subscriptionId
@@ -99,7 +97,7 @@ cbsiSCSIEndpointCT1=`echo $output | jq -r '.properties.outputs.cbsiSCSIEndpointC
 echo ""
 echo ""
 echo ""
-echosuccess "[COMPLETED] The deployment of CBS managed application has been completed."
+echosuccess "[STEP COMPLETED] The deployment of CBS managed application has been completed."
 echo ""
 
 echo " ******** Array parameters ********"
