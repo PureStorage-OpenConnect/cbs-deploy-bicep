@@ -82,10 +82,13 @@ echo -e "${C_BLUE3}${C_GREY85}
 
 "
 
+#in E2E demo we use the latest version
+latestPlan=`(echo '{"plans":[';curl 'https://catalogapi.azure.com/offers/purestoragemarketplaceadmin.pure_storage_cloud_block_store_deployment?api-version=2018-08-01-beta&market=US&includeStopSoldPlans=true&x-ms-effective-locale=en.en-us' 2> /dev/null  | jq -c '.plans | to_entries | .[] | select(.value.isStopSell == false) | select(.value.isHidden == false) | [.value.planId,.value.displayName, (.value.artifacts | .[] | select(.name == "DefaultTemplate").uri)]' | while IFS=$"\n" read -r line; do let "i=i+1";[[ $i == 1 ]] && add="" || add=","; echo $add;planId=\`echo $line | jq -r '.[0]'\`;displayName=\`echo $line | jq -r '.[1]'\`;uri=\`echo $line | jq -r '.[2]'\`;planVersion=\`curl "$uri" 2>/dev/null | jq -r '.resources | .[] | select(.type == "Microsoft.Solutions/applications").plan.version'\`;echo "{\"planId\":\"$planId\",\"planDisplayName\":\"$displayName\",\"planVersion\":\"$planVersion\"}";done;echo "]}") | jq '(.plans | sort_by(.planId) | reverse)[0]'`
 
-AZURE_MARKETPLACE_PLAN_NAME=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanName.defaultValue`
+
+AZURE_MARKETPLACE_PLAN_NAME=`echo $latestPlan | jq -r .planId`
 AZURE_MARKETPLACE_PUBLISHER=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanPublisher.defaultValue`
-AZURE_MARKETPLACE_PLAN_OFFER=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanOffer.defaultValue`
+AZURE_MARKETPLACE_PLAN_OFFER=`echo $latestPlan | jq -r .planVersion`
 
 enablementOutput=$(az vm image terms accept \
     --subscription $subscriptionId \

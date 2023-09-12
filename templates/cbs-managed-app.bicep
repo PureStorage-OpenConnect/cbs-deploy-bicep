@@ -100,8 +100,8 @@ param subnetNameForReplication string = ''
 param fusionSecIdentity object = {}
 
 param azureMarketPlacePlanPublisher string = 'purestoragemarketplaceadmin'
-param azureMarketPlacePlanVersion string = '1.0.1'
-param azureMarketPlacePlanName string = 'cbs_azure_6_4_9'
+param azureMarketPlacePlanVersion string = '1.0.3'
+param azureMarketPlacePlanName string = 'cbs_azure_6_4_10'
 
 param azureMarketPlacePlanOffer string = 'pure_storage_cloud_block_store_deployment'
 
