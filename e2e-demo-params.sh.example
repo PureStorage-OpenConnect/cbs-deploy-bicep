@@ -17,7 +17,7 @@ alertRecipients='<< email address >>'
 
 # test VM size
 
-virtualMachineSize='Standard_D2s_v5'
+virtualMachineSize='Standard_D4s_v5'
 
 # test VM credentials
 adminUsername='<< test VM admin username >>'

@@ -22,7 +22,7 @@ echo -e "
 
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #1] Deploying required infrastructure in subscription $subscriptionId:${NO_FORMAT}"
+[Step #1] Deploying required infrastructure in subscription xxxxxxxx-xxxx-xxxx-xxx-xxxxxxxxxxxx:${NO_FORMAT}"
 echo "
 RG name: $resourceGroupName
 Location: $location
@@ -88,7 +88,8 @@ latestPlan=`(echo '{"plans":[';curl 'https://catalogapi.azure.com/offers/puresto
 
 AZURE_MARKETPLACE_PLAN_NAME=`echo $latestPlan | jq -r .planId`
 AZURE_MARKETPLACE_PUBLISHER=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanPublisher.defaultValue`
-AZURE_MARKETPLACE_PLAN_OFFER=`echo $latestPlan | jq -r .planVersion`
+AZURE_MARKETPLACE_PLAN_OFFER=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanOffer.defaultValue`
+AZURE_MARKETPLACE_PLAN_VERSION=`echo $latestPlan | jq -r .planVersion`
 
 enablementOutput=$(az vm image terms accept \
     --subscription $subscriptionId \
@@ -127,7 +128,11 @@ output=$(az deployment group create \
                alertRecipients=$alertRecipients \
                cbsModelSku=$cbsModelSku \
                orgDomain=$orgDomain \
-               availabilityZone=$availabilityZone
+               availabilityZone=$availabilityZone \
+               azureMarketPlacePlanVersion=$AZURE_MARKETPLACE_PLAN_VERSION \
+               azureMarketPlacePlanName=$AZURE_MARKETPLACE_PLAN_NAME \
+               azureMarketPlacePlanPublisher=$AZURE_MARKETPLACE_PUBLISHER \
+               azureMarketPlacePlanOffer=$AZURE_MARKETPLACE_PLAN_OFFER
   )
 
 cbsmanagementLbIp=`echo $output | jq -r '.properties.outputs.cbsmanagementLbIp.value'`

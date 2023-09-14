@@ -1,5 +1,15 @@
 # Bicep Framework for deploying CBS on Azure
 
+The Bicep framework for CBS deployment comes with Bicep templates and bash scripts, combined from following modules:
+
+- **Module #01 (Prerequisites)** -  this module deploys all the resources required for CBS deployment, including Virtual Network, User-Managed Identity, Custom Role, and others.
+ 
+- **Module #02 (CBS Managed App)** - this module deploys the CBS Managed App itself into the environment with all prerequisites met.
+ 
+- **Module #03 (Test VM)** -  This module provisions a test Virtual Machine (VM) of Windows Server 2019 with pre-installed MS SQL server and configures test volumes in CBS instance to mount them via iSCSI protocol.
+ 
+- **Module #04 (E2E Demo Deployment) 🧪** - For hands-on/testing purposes, this module combines all modules #01-#03 (described above) and deploys all required resources, CBS Managed App and a test Virtual Machine in the single deployment script.
+
 ## Prerequisites
 - bash
 - Docker or Windows (**WSL recommended**) / Linux<sup>[1]</sup> / MacOS<sup>[2]</sup>
@@ -31,38 +41,23 @@ You can also run all commands in this repo on your computer or in container usin
 ### On local computer
 
 1. Add permissions to execute scripts:
-```bash
-$ chmod +x 00-setup-machine.sh 01-deploy-prerequisities.sh 02-deploy-cbs.sh 03-deploy-test-vm.sh deploy-e2e-demo.sh
-```
+    ```bash
+    $ chmod +x 00-setup-machine.sh 01-deploy-prerequisities.sh 02-deploy-cbs.sh 03-deploy-test-vm.sh deploy-e2e-demo.sh
+    ```
 1. Run the `00-setup-machine.sh` script to install all required tooling and log into Azure.
+    ```bash
+    ./00-setup-machine.sh
+    ```
 
 
 ## Usage
 
-### Option A - E2E DEMO Deployment
-
-This repository contains a script `deploy-e2e-demo.sh` that combines all modules in the repository and enables easy testing and hands-on experience of the CBS (Pure Cloud Block Store) on Azure. 
-With just one script, you can quickly set up and run a test environment to explore the features and capabilities of the CBS.
-
-The script includes all required CBS resources and sets up a test Windows SQL Server VM with mounted CBS volumes via iSCSI.
-
-![Deployed resources with deploy-e2e-demo.sh script](./static/deployed-resources.png)
-
-To use this script:
-1. rename the file `e2e-demo-params.sh.example` to `e2e-demo-params.sh` 
-1. enter the necessary values into the `e2e-demo-params.sh` file
-1. execute the script `./deploy-e2e-demo.sh`
-
-
-
-### Option B - Bicep Modules
-
-The repository also contains 3 modules for deploying CBS on Azure using infrastructure-as-code [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep) templates.
+The repository contains 4 modules for deploying CBS on Azure using infrastructure-as-code [Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/overview?tabs=bicep) templates.
 
 These modules can be customized and modified, for example, to be incorporated into your landing zone templates.
 
 
-#### Module #01 - CBS Prerequisites
+### Module #01 - CBS Prerequisites
 
 The script `01-deploy-prerequisities.sh` (Bicep template file `prerequisities.bicep`) deploys all required resources for CBS.
 
@@ -76,39 +71,70 @@ The script `01-deploy-prerequisities.sh` (Bicep template file `prerequisities.bi
 
 To use this module:
 1. rename the file `01-prereq.bicepparam.example` to `01-prereq.bicepparam` 
+    ```bash
+    $ mv 01-prereq.bicepparam.example 01-prereq.bicepparam
+    ```
 1. enter the necessary values into the `01-prereq.bicepparam` file
-1. execute the script `./01-deploy-prerequisities.sh`
+
+1. execute the script
+    ```bash
+    ./01-deploy-prerequisities.sh
+    ```
 
 
-#### Module #02 - CBS Managed App
+
+### Module #02 - CBS Managed App
 
 The script `02-deploy-cbs.sh` (Bicep template file `cbs-managed-app.bicep`) deploys CBS managed application itself.
 
 To use this module:
 1. rename the file `02-cbs.bicepparam.example` to `02-cbs.bicepparam` 
+    ```bash
+    $ mv 02-cbs.bicepparam.example 02-cbs.bicepparam
+    ```
 
 1. enter the necessary values into the `02-cbs.bicepparam` file<br>
-    <em><small>Remember that these Bicep modules are separate from each other. If you want to run them one after the other, you'll need to pass some output values from the `01-deploy-prerequisities.sh` script into the `02-cbs.bicepparam` parameter file. </small></em>
+    <em><small>Remember that these Bicep modules are isolated from each other.<br>
+    If you want to run them one after the other, you'll need to pass some output values from the `01-deploy-prerequisities.sh` script into the `02-cbs.bicepparam` parameter file. </small></em>
 
-1. execute the script `./02-deploy-cbs.sh`
+1. execute the script
+    ```bash
+    ./02-deploy-cbs.sh
+    ```
+
 
 
 
 > [!NOTE]  
 > If you intend to use only a Bicep template for the programmatic deployment of CBS, you must also accept the Azure Marketplace license for the given product/plan. Since Azure does not support accepting licenses via Bicep templates, you must accept the license using PowerShell or Azure CLI before executing the Bicep deployment.
 
-#### Module #03 - Test VM
+### Module #03 - Test VM
 
 The script `03-deploy-test-vm.sh` deploys a test Windows Server VM with MS SQL server installed.
 
 It automatically creates 3 volumes in the CBS array, and mount them on the VM via iSCSI to be used by SQL server.
 
+To use this module:
+1. rename the file `03-test-vm.bicepparam.example` to `03-test-vm.bicepparam` 
+    ```bash
+    $ mv 03-test-vm.bicepparam.example 03-test-vm.bicepparam
+    ```
 
-##### Using the Test VM
+1. enter the necessary values into the `03-test-vm.bicepparam` file<br>
+    <em><small>Remember that these Bicep modules are isolated from each other.<br>
+    If you want to run them one after the other, you'll need to pass some output values from the `02-deploy-cbs.sh` script into the `03-test-vm.bicepparam` parameter file. </small></em>
+
+1. execute the script
+    ```bash
+    ./03-deploy-test-vm.sh
+    ```
+
+#### Using the Test VM
 
 The Test VM is configured to accept standard RDP connections from your public IP address.
 
-In WSL, the deployment script should automatically open an RDP session to the VM.
+In WSL, the deployment script should automatically open an RDP session to the VM.<br>
+
 If not, use a command:
 ```bash
 $ mstsc.exe /v:<<public IP address>>
@@ -123,13 +149,37 @@ Password: *pureuser*
 
 **Please change these credentials immediately.**
 
+<br><br>
+
+### Module #04 - E2E DEMO Deployment
+
+This repository contains a script `deploy-e2e-demo.sh` that combines all modules in the repository and enables easy testing and hands-on experience of the CBS (Pure Cloud Block Store) on Azure. 
+With just one script, you can quickly set up and run a test environment to explore the features and capabilities of the CBS.
+
+The script includes all required CBS resources and sets up a test Windows SQL Server VM with mounted CBS volumes via iSCSI.
+
+![Deployed resources with deploy-e2e-demo.sh script](./static/deployed-resources.png)
+
+To use this script:
+1. rename the file `e2e-demo-params.sh.example` to `e2e-demo-params.sh` 
+    ```bash
+    $ mv e2e-demo-params.sh.example e2e-demo-params.sh
+    ```
+1. enter the necessary values into the `e2e-demo-params.sh` file
+1. execute the script 
+    ```bash
+    $ ./deploy-e2e-demo.sh
+    ```
+
+
+
 
 ## Limitations / Troubleshooting
 
 
 ### Common Deployment vNET 
 
-The prerequisites module only supports a single virtual network scenario where all required subnets are deployed within one common vNET, as this is considered best practice. The use of multiple vNETs that are peered with each other is not supported by this framework.
+The prerequisites (Module #01) only supports a single virtual network scenario where all required subnets are deployed within one common vNET, as this is considered best practice. The use of multiple vNETs that are peered with each other is not supported by this framework.
 
 However, the vNET does not have to be deployed within the same vNET. You can use the optional `vnetRGName` (for Module #02) parameter to specify the resource group for the vNET.
 
