@@ -6,6 +6,7 @@ param resourceGroupName = 'your-resource-group-name'
 
 param extensionFileUrl = 'https://raw.githubusercontent.com/PureStorage-OpenConnect/cbs-deploy-bicep/main/templates/test-vm-extensions/setup-demo-cbs.ps1'
 param extensionCustomizeUXFileUrl = 'https://raw.githubusercontent.com/PureStorage-OpenConnect/cbs-deploy-bicep/main/templates/test-vm-extensions/customize-vm.ps1'
+// replace with IP address of load balancer of CBS (e.g. from output of 02-deploy-cbs.sh)
 param PureManagementIP = '<< IP address of load balancer of CBS >>'
 
 // this is CBS default username and password

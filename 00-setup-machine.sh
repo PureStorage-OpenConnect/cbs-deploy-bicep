@@ -22,21 +22,22 @@ fi
 if [[ "$OSTYPE" =~ ^darwin ]]; then
 
   # install az cli
-  brew update && brew install azure-cli
+  brew update && brew install azure-cli  
 
-  # Add the tap for bicep
-  brew tap azure/bicep
-
-  brew help
-  if [[ $? != 0 ]] ; then
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  else
-    brew update
-  fi
-
-  brew install bicep
+  # install jq
   brew install jq
-  
+
+  # install bicep cli
+
+  # Fetch the latest Bicep CLI binary
+  curl -Lo bicep https://github.com/Azure/bicep/releases/latest/download/bicep-osx-x64
+  # Mark it as executable
+  chmod +x ./bicep
+  # Add Gatekeeper exception (requires admin)
+  sudo spctl --add ./bicep
+  # Add bicep to your PATH (requires admin)
+  sudo mv ./bicep /usr/local/bin/bicep
+
 fi
 
 # check installed tooling
@@ -52,9 +53,9 @@ fi
 
 az bicep version
 if [ $? == 0 ]; then
-  echosuccess "[.] bicep support...OK";
+  echosuccess "[.] az-cli bicep support...OK";
 else
-  echo "Installing bicep"
+  echo "Enabling bicep support in az-cli"
   az bicep install
 fi
 
