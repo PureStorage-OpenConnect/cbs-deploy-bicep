@@ -10,6 +10,8 @@ param arrayName = 'my-array-name'
 param licenseKey = 'CBS-TRIAL-LICENSE'
 param cbsModelSku = 'V20MUR1'
 param orgDomain = 'myorgdomain.dev'
-param managedUserIdentityId = '/subscriptions/<subscriptionId>/resourceGroups/<rgName>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<uminame>'
+// replace with resource ID of the managed identity (e.g. from output of 01-deploy-prerequisities.sh)
+param managedUserIdentityId = '/subscriptions/<---MY SUBSCRITION ID--->/resourceGroups/<---RG NAME--->/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<---NAME OF USER MANAGED IDENTITY --->'
+// replace with vNET name (e.g. from output of 01-deploy-prerequisities.sh)
 param vnetName = 'my-vnet-name'
 param availabilityZone = 1

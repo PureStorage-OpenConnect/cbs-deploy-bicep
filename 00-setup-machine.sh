@@ -52,9 +52,9 @@ fi
 
 az bicep version
 if [ $? == 0 ]; then
-  echosuccess "[.] bicep support...OK";
+  echosuccess "[.] az-cli bicep support...OK";
 else
-  echo "Installing bicep"
+  echo "Enabling bicep support in az-cli"
   az bicep install
 fi
 
