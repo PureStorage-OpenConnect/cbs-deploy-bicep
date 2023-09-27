@@ -50,6 +50,10 @@ param extensionFileUrl string
 
 param extensionCustomizeUXFileUrl string
 
+@description('When provided, they key will be saved for SSH connection into the CBS array. Encoded in base64 format.')
+@secure()
+param sshPrivateKeyContentInBase64 string = ''
+
 module variables 'modules/variables.bicep' = {
   name: 'scriptVariables'
   params: {}
@@ -177,7 +181,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
       ]
     }
     protectedSettings: {
-      commandToExecute: 'powershell.exe -Command "./setup-demo-cbs.ps1 -PureManagementIP ${PureManagementIP} -PureManagementUser ${PureManagementUser} -PureManagementPassword ${PureManagementPassword}; ./customize-vm.ps1 -PureManagementIP ${PureManagementIP} -PureManagementUser ${PureManagementUser} -PureManagementPassword ${PureManagementPassword};exit 0;"'
+      commandToExecute: 'powershell.exe -Command "./setup-demo-cbs.ps1 -PureManagementIP ${PureManagementIP} -PureManagementUser ${PureManagementUser} -PureManagementPassword ${PureManagementPassword}; ./customize-vm.ps1 -VmUser ${adminUsername} -PureManagementIP ${PureManagementIP} -PureManagementUser ${PureManagementUser} -PureManagementPassword ${PureManagementPassword} -SSHPrivateKeyBase64 ${sshPrivateKeyContentInBase64};exit 0;"'
     }
   }
 }

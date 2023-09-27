@@ -69,6 +69,25 @@ echo ""
 echosuccess "[STEP COMPLETED] The deployment of prerequisities has been completed."
 echo ""
 
+
+# generate a SSH key and upload it into CBS and test VM
+echo -e "${C_BLUE3}${C_GREY85}
+[Step #2] Generating a SSH key for array management:${NO_FORMAT}"
+
+sshOutput=$( { az sshkey create --name "ssh-cbs-test-$resourceGroupName" --resource-group $resourceGroupName; } 2>&1 )
+sshPrivateKeyFile=`echo $sshOutput | grep -oP 'Private key is saved to "\K[^"]*'`
+sshPublicKeyFile=`echo $sshOutput | grep -oP ' WARNING: Public key is saved to "\K[^"]*'`
+sshDetails=`az sshkey show --name "ssh-cbs-test-$resourceGroupName" --resource-group $resourceGroupName`
+sshPublicKeyInOpenSSHFormat=`echo $sshDetails | jq -r ".publicKey"`
+
+sshPrivateKeyContentInBase64=`base64 $sshPrivateKeyFile -w 0`
+
+echo "
+Generated SSH key: $sshPublicKeyInOpenSSHFormat
+
+"
+
+
 # Read the bicep parameters for CBS
 mainfilename='./templates/cbs-managed-app.bicep'
 tmpfilename='./templates/tmp-e2e-02.bicepparam'
@@ -78,7 +97,7 @@ paramsJson=`echo $bicep_raw | jq -r ".parametersJson"`
 
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #2] Enabling CBS deployment for selected subscription $subscriptionId:${NO_FORMAT}
+[Step #3] Enabling CBS deployment for selected subscription $subscriptionId:${NO_FORMAT}
 
 "
 
@@ -108,7 +127,7 @@ else
 fi
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #3] Deploying CBS managed app (~20mins):${NO_FORMAT}
+[Step #4] Deploying CBS managed app (~20mins):${NO_FORMAT}
 "
 
 # Deploy our infrastructure
@@ -132,7 +151,8 @@ output=$(az deployment group create \
                azureMarketPlacePlanVersion=$AZURE_MARKETPLACE_PLAN_VERSION \
                azureMarketPlacePlanName=$AZURE_MARKETPLACE_PLAN_NAME \
                azureMarketPlacePlanPublisher=$AZURE_MARKETPLACE_PUBLISHER \
-               azureMarketPlacePlanOffer=$AZURE_MARKETPLACE_PLAN_OFFER
+               azureMarketPlacePlanOffer=$AZURE_MARKETPLACE_PLAN_OFFER \
+               sshPublicKey="$sshPublicKeyInOpenSSHFormat"
   )
 
 cbsmanagementLbIp=`echo $output | jq -r '.properties.outputs.cbsmanagementLbIp.value'`
@@ -178,7 +198,7 @@ echo " -----------------------------------------------"
 
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #4] Getting your current IP address...${NO_FORMAT}
+[Step #5] Getting your current IP address...${NO_FORMAT}
 
 "
 
@@ -196,7 +216,7 @@ fi
 
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #5] Deploying VM into subscription $subscriptionId into RG ${resourceGroupName} (~20mins):${NO_FORMAT}
+[Step #6] Deploying VM into subscription $subscriptionId into RG ${resourceGroupName} (~20mins):${NO_FORMAT}
 
 "
 
@@ -220,6 +240,7 @@ output=$(az deployment group create \
                adminUsername=$adminUsername \
                adminPassword=$adminPassword \
                vNetName=$arrayVnetName \
+               sshPrivateKeyContentInBase64="${sshPrivateKeyContentInBase64}"\
                whitelistedSourceAddress=$myIpAddress
   )
 
@@ -252,7 +273,7 @@ echo ""
 if [ -n "${WSLENV}" ];
 then
     echo -e "${C_BLUE3}${C_GREY85}
-[Step #3][Optional] Opening Remote Desktop Connection session into the test VM:${NO_FORMAT}
+[Step #7][Optional] Opening Remote Desktop Connection session into the test VM:${NO_FORMAT}
 "
     echo " Adding credentials to cmdkey:"
     cmdkey.exe /generic:"$vmIpAddress" /user:"$adminUsername" /pass:"$adminPassword"
