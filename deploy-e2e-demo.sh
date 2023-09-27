@@ -22,7 +22,7 @@ echo -e "
 
 
 echo -e "${C_BLUE3}${C_GREY85}
-[Step #1] Deploying required infrastructure in subscription xxxxxxxx-xxxx-xxxx-xxx-xxxxxxxxxxxx:${NO_FORMAT}"
+[Step #1] Deploying required infrastructure in subscription ${subscriptionId}:${NO_FORMAT}"
 echo "
 RG name: $resourceGroupName
 Location: $location
