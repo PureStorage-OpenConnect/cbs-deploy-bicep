@@ -1,4 +1,4 @@
-param ([Parameter(Mandatory)]$PureManagementIP,$PureManagementUser, $PureManagementPassword)
+param ([Parameter(Mandatory)]$PureManagementIP,$PureManagementUser, $PureManagementPassword, $VmUser, $SSHPrivateKeyBase64 = '')
 #Variables
 $arrayendpoint = $PureManagementIP
 $pureuser = $PureManagementUser
@@ -48,14 +48,41 @@ $Shortcut.Save()
 
 # download Pure favicon 
 mkdir -Path $env:temp\purecustomization -erroraction SilentlyContinue | Out-Null
-$Download = join-path $env:temp\purecustomization favicon.ico
-Invoke-WebRequest "https://support.purestorage.com/@api/deki/files/47337/pcbs.ico?origin=mt-web" -OutFile $Download 
+$DownloadFavicon = join-path $env:temp\purecustomization favicon.ico
+Invoke-WebRequest "https://support.purestorage.com/@api/deki/files/47337/pcbs.ico?origin=mt-web" -OutFile $DownloadFavicon 
 
 # create a desktop icon to mgmt. interface
 
 $WshShell = New-Object -comObject WScript.Shell
 $Shortcut = $WshShell.CreateShortcut("C:\Users\Public\Desktop\Open CBS Console.lnk")
 $Shortcut.TargetPath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
-$shortcut.IconLocation =  $Download
+$shortcut.IconLocation =  $DownloadFavicon
 $Shortcut.Arguments = "https://$arrayendpoint"
 $Shortcut.Save()
+
+
+
+
+# copy the ssh private key into desktop
+if (-not ([string]::IsNullOrEmpty($SSHPrivateKeyBase64)))
+{
+    $sshKeyFilename = "C:\ssh.key"
+    Write-Host $SSHPrivateKeyBase64
+
+    [System.Convert]::FromBase64String($SSHPrivateKeyBase64) | Set-Content $sshKeyFilename -Encoding Byte
+    
+    # remove other permissions
+    Icacls $sshKeyFilename /Inheritance:r
+    Icacls $sshKeyFilename /Grant:r ${vmUser}:"(R)"
+
+
+    # create a desktop icon to ssh the array
+
+    $WshShell = New-Object -comObject WScript.Shell
+    $Shortcut = $WshShell.CreateShortcut("C:\Users\Public\Desktop\SSH Access to CBS.lnk")
+    $Shortcut.TargetPath = "C:\Windows\System32\OpenSSH\ssh.exe"
+    $shortcut.IconLocation =  $DownloadFavicon
+    $Shortcut.Arguments = "$pureuser@$arrayendpoint -i $sshKeyFilename"
+    $Shortcut.Save()
+
+}

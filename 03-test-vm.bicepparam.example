@@ -25,3 +25,4 @@ param adminPassword='<< VM admin password >>'
 
 // value '$myIpAddress' will be replaced with your current public IP address
 param whitelistedSourceAddress = '$myIpAddress'
+param sshPrivateKeyContentInBase64 = '<---MY SSH PRIVATE KEY CONTENT (starting with -----BEGIN RSA PRIVATE KEY----- and ending with -----END RSA PRIVATE KEY-----) with no newlines-->'

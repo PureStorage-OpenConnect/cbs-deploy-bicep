@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CLI_VERSION='1.0.2'
+CLI_VERSION='1.0.3'
 
 
 # terminal colors
