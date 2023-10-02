@@ -3,6 +3,16 @@
 echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
 echosuccess() { printf "\033[0;32m%s\n\033[0m" "$*" >&2; }
 
+if [ -n "${PURE_RUN_IN_DOCKERIMAGE}" ];
+then
+    echoerr "
+In the docker image with pre-installed tools you don't need to run this setup command and you can proceed to the deployment scripts.
+    "
+    exit 1;
+fi
+
+
+
 # Install the az (with bicep)
 echo "Installing tools:"
 
@@ -50,6 +60,11 @@ else
   exit 1;
 fi
 
+# upgrade az cli
+az upgrade --yes --all
+
+# enable az auto-upgrade
+az config set auto-upgrade.enable=yes
 
 az bicep version
 if [ $? == 0 ]; then

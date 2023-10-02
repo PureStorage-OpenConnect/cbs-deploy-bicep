@@ -1,4 +1,4 @@
-FROM ubuntu:22.10
+FROM ubuntu:latest
 
 RUN apt-get update && apt-get install -y \
     jq \
@@ -7,6 +7,12 @@ RUN apt-get update && apt-get install -y \
 
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
 
+# upgrade az cli
+RUN az upgrade --yes --all
+
+# enable az auto-upgrade
+RUN az config set auto-upgrade.enable=yes
+
 RUN az bicep install
 
 # install bicep
@@ -14,6 +20,8 @@ RUN curl -sLo bicep https://github.com/Azure/bicep/releases/latest/download/bice
     && chmod +x ./bicep \
     && mv ./bicep /usr/local/bin/bicep \
     && bicep --version
+
+ENV PURE_RUN_IN_DOCKERIMAGE=1
 
 VOLUME [ "/data" ]
 WORKDIR /data
