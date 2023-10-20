@@ -15,3 +15,5 @@ param managedUserIdentityId = '/subscriptions/<---MY SUBSCRITION ID--->/resource
 // replace with vNET name (e.g. from output of 01-deploy-prerequisities.sh)
 param vnetName = 'my-vnet-name'
 param availabilityZone = 1
+// replace with an identity (user or group) within tenant, who would approve the JIT requests to manage CBS app resources.
+param jitApprovers = [{displayName:'my-cloud-ops-group',id:'<---OBJECT ID OF USER OR GROUP--->',type:'<--- 'group' OR 'user'--->'}]
