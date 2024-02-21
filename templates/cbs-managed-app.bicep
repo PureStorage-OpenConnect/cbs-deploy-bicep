@@ -233,7 +233,7 @@ resource cbsManagedApp 'Microsoft.Solutions/applications@2021-07-01' =  {
       systemNewOrExisting: {
         value: 'existing'
       }
-      keyVaultName: {
+      /*keyVaultName: {
         value: ''
       }
       cosmosAccountName: {
@@ -244,7 +244,7 @@ resource cbsManagedApp 'Microsoft.Solutions/applications@2021-07-01' =  {
       }
       enableAcceleratedNetworking: {
         value: true
-      }
+      }*/
       fusionSECIdentity: {
        value: fusionSecIdentity 
       }

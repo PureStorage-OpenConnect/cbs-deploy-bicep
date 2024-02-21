@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CLI_VERSION='1.0.3'
+CLI_VERSION='1.0.5'
 
 
 # terminal colors
@@ -35,6 +35,7 @@ curlwithcode() {
 echoerr() { printf "\033[0;31m%s\n\033[0m" "$*" >&2; }
 echosuccess() { printf "\033[0;32m%s\n\033[0m" "$*" >&2; }
 
+az upgrade --yes 2>/dev/null 1>&2
 
 az version 2>/dev/null 1>&2
 if [ $? != 0 ]; then
