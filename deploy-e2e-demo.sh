@@ -110,6 +110,9 @@ AZURE_MARKETPLACE_PUBLISHER=`echo $bicep_raw | jq -r .templateJson | jq -r .para
 AZURE_MARKETPLACE_PLAN_OFFER=`echo $bicep_raw | jq -r .templateJson | jq -r .parameters.azureMarketPlacePlanOffer.defaultValue`
 AZURE_MARKETPLACE_PLAN_VERSION=`echo $latestPlan | jq -r .planVersion`
 
+AZURE_LOGGED_USER_ID=`az ad signed-in-user show | jq -r .id`
+AZURE_LOGGED_USER_EMAIL=`az ad signed-in-user show | jq -r .mail`
+
 enablementOutput=$(az vm image terms accept \
     --subscription $subscriptionId \
     --publisher $AZURE_MARKETPLACE_PUBLISHER \
@@ -129,8 +132,9 @@ fi
 echo -e "${C_BLUE3}${C_GREY85}
 [Step #4] Deploying CBS managed app (~20mins):${NO_FORMAT}
 "
+jitApprovers="[{'displayName':'$AZURE_LOGGED_USER_EMAIL','id':'$AZURE_LOGGED_USER_ID','type':'user'}]"
 
-# Deploy our infrastructure
+# Deploy CBS
 output=$(az deployment group create \
   --name "CBS-E2E-deploy-sh" \
   --resource-group $resourceGroupName \
@@ -152,6 +156,7 @@ output=$(az deployment group create \
                azureMarketPlacePlanName=$AZURE_MARKETPLACE_PLAN_NAME \
                azureMarketPlacePlanPublisher=$AZURE_MARKETPLACE_PUBLISHER \
                azureMarketPlacePlanOffer=$AZURE_MARKETPLACE_PLAN_OFFER \
+               jitApprovers="$jitApprovers" \
                sshPublicKey="$sshPublicKeyInOpenSSHFormat"
   )
 

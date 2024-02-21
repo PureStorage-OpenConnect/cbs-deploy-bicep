@@ -105,6 +105,20 @@ param azureMarketPlacePlanName string = 'cbs_azure_6_4_10'
 
 param azureMarketPlacePlanOffer string = 'pure_storage_cloud_block_store_deployment'
 
+@description('''
+This access will not be used, but enabling JIT increases security - with turned on, Azure will not provide any default access to CBS resources (Managed App) to service provider.
+''')
+param jitAccessEnabled bool = true
+param jitApprovalMode string = 'ManualApprove'
+@description('''
+Provide an identity (user or group) within tenant, who would approve the JIT requests to manage CBS app resources.
+Required parameter by Azure, needs to be provided.
+Example value:
+[{'displayName':'some-user','id':'<<object-id-of-group>>','type':'group'}]
+''')
+param jitApprovers array
+
+
 module variables 'modules/variables.bicep' = {
   name: 'scriptVariables'
   params: {
@@ -146,9 +160,10 @@ resource cbsManagedApp 'Microsoft.Solutions/applications@2021-07-01' =  {
   identity: managedUserIdentity
   properties:{
     managedResourceGroupId: subscriptionResourceId('Microsoft.Resources/resourceGroups', managedRgName)
-    //TODO: currently not implemented in Bicep module
     jitAccessPolicy:{
-      jitAccessEnabled: false
+      jitAccessEnabled: jitAccessEnabled
+      jitApprovalMode: jitApprovalMode
+      jitApprovers: jitApprovers
     }
     parameters:{
       tagsByResource: {
