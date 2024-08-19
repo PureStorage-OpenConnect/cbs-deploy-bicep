@@ -33,7 +33,7 @@ param alertRecipients string
 @description('CBS array name in Purity')
 param arrayName string
 
-@allowed(['V10MUR1', 'V20MUR1', 'V20MP2R2'])
+@allowed(['V10MUR1', 'V10MP2R2', 'V20MUR1', 'V20MP2R2'])
 param cbsModelSku string
 
 @allowed([1,2,3])
