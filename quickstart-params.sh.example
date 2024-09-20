@@ -5,7 +5,7 @@ location='<< location >>'
 subscriptionId='<< subscription ID >>'
 
 # resource group (RG) where the all resources will be deployed
-resourceGroupName="test-cbs-e2e-"`date '+%F-%H-%M-%S'`"-rg"
+resourceGroupName="test-cbs-qs-"`date '+%F-%H-%M-%S'`"-rg"
 
 # the availability zone (AZ) for VMs inside CBS, e.g. 1
 # check support article if given AZ is currently supported within region

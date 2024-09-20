@@ -8,7 +8,7 @@ The Bicep framework for CBS deployment comes with Bicep templates and bash scrip
  
 - **Module #03 (Test VM)** -  This module provisions a test Virtual Machine (VM) of Windows Server 2019 with pre-installed MS SQL server and configures test volumes in CBS instance to mount them via iSCSI protocol.
  
-- **Module #04 (E2E Demo Deployment) 🧪** - For hands-on/testing purposes, this module combines all modules #01-#03 (described above) and deploys all required resources, CBS Managed App and a test Virtual Machine in the single deployment script.
+- **Module #04 (QuickStart Demo Deployment) 🧪** - For hands-on/testing purposes, this module combines all modules #01-#03 (described above) and deploys all required resources, CBS Managed App and a test Virtual Machine in the single deployment script.
 
 ## Prerequisites
 - bash
@@ -42,7 +42,7 @@ You can also run all commands in this repo on your computer or in container usin
 
 1. Add permissions to execute scripts:
     ```bash
-    $ chmod +x 00-setup-machine.sh 01-deploy-prerequisities.sh 02-deploy-cbs.sh 03-deploy-test-vm.sh deploy-e2e-demo.sh
+    $ chmod +x 00-setup-machine.sh 01-deploy-prerequisities.sh 02-deploy-cbs.sh 03-deploy-test-vm.sh deploy-quickstart.sh
     ```
 1. Run the `00-setup-machine.sh` script to install all required tooling and log into Azure.
     ```bash
@@ -151,33 +151,30 @@ Password: *pureuser*
 
 <br><br>
 
-### Module #04 - E2E DEMO Deployment
+### Module #04 - QuickStart DEMO Deployment
 
-This repository contains a script `deploy-e2e-demo.sh` that combines all modules in the repository and enables easy testing and hands-on experience of the CBS (Pure Cloud Block Store) on Azure. 
+This repository contains a script `deploy-quickstart.sh` that combines all modules in the repository and enables easy testing and hands-on experience of the CBS (Pure Cloud Block Store) on Azure. 
 With just one script, you can quickly set up and run a test environment to explore the features and capabilities of the CBS.
 
 The script includes all required CBS resources and sets up a test Windows SQL Server VM with mounted CBS volumes via iSCSI.
 
-![Deployed resources with deploy-e2e-demo.sh script](./static/deployed-resources.png)
+![Deployed resources with deploy-quickstart.sh script](./static/deployed-resources.png)
 
 To use this script:
-1. rename the file `e2e-demo-params.sh.example` to `e2e-demo-params.sh` 
+
+1. rename the file `quickstart-params.sh.example` to `quickstart-params.sh`:
     ```bash
-    $ mv e2e-demo-params.sh.example e2e-demo-params.sh
+    $ mv quickstart-params.sh.example quickstart-params.sh
     ```
-1. enter the necessary values into the `e2e-demo-params.sh` file
-1. execute the script 
+1. enter the necessary values into the `quickstart-params.sh` file
+1. execute the script:
     ```bash
-    $ ./deploy-e2e-demo.sh
+    $ ./deploy-quickstart.sh
     ```
-
-
-
 
 ## Limitations / Troubleshooting
 
-
-### Common Deployment vNET 
+### Common Deployment vNET
 
 The prerequisites (Module #01) only supports a single virtual network scenario where all required subnets are deployed within one common vNET, as this is considered best practice. The use of multiple vNETs that are peered with each other is not supported by this framework.
 

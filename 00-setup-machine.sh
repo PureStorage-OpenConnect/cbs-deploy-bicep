@@ -95,7 +95,7 @@ echo "Asking user to log in...";
 az login
 if [ $? == 0 ]; then
   echosuccess "
-  Your machine should be ready! Now proceed with './deploy-e2e-demo.sh' or './01-deploy-prerequisities.sh' script
+  Your machine should be ready! Now proceed with './deploy-quickstart.sh' or './01-deploy-prerequisities.sh' script
   
   ";
 else

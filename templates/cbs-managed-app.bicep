@@ -33,7 +33,7 @@ param alertRecipients string
 @description('CBS array name in Purity')
 param arrayName string
 
-@allowed(['V10MUR1', 'V20MUR1', 'V20MP2R2'])
+@allowed(['V10MUR1', 'V10MP2R2', 'V20MUR1', 'V20MP2R2'])
 param cbsModelSku string
 
 @allowed([1,2,3])
@@ -103,7 +103,7 @@ param azureMarketPlacePlanPublisher string = 'purestoragemarketplaceadmin'
 param azureMarketPlacePlanVersion string = '1.0.3'
 param azureMarketPlacePlanName string = 'cbs_azure_6_4_10'
 
-param azureMarketPlacePlanOffer string = 'pure_storage_cloud_block_store_deployment'
+param azureMarketPlacePlanOffer string = 'pure_cloud_block_store_product_deployment'
 
 @description('''
 This access will not be used, but enabling JIT increases security - with turned on, Azure will not provide any default access to CBS resources (Managed App) to service provider.

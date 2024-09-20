@@ -1,3 +1,4 @@
 tmp*.json
 *.bicepparam
 e2e-demo-params.sh
+quickstart-params.sh

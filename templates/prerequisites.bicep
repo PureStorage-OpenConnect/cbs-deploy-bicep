@@ -66,7 +66,7 @@ module vnetMngmtCustomRbacRole 'modules/custom-role.bicep' = {
   name: 'vnetMngmtCustomRbacRoleDeploy'
   params: {
     actions: [
-      'Microsoft.Network/virtualNetworks/subnets/joinViaServiceEndpoint/action'
+      'Microsoft.Network/virtualNetworks/subnets/joinViaServiceEndpoint/action', 'Microsoft.Network/virtualNetworks/subnets/join/action'
     ]
     roleName: variables.outputs.vnetMngmtCustomRbacRoleName
     roleDescription: 'Used for deployment of Pure CBS into vNET'

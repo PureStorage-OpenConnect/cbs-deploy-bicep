@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 SHOW_DEBUG_OUTPUT=false
-source $(dirname $0)/e2e-demo-params.sh
+source $(dirname $0)/quickstart-params.sh
 
 source $(dirname $0)/script-modules/common.sh
 
@@ -10,7 +10,7 @@ source $(dirname $0)/script-modules/ascii-logo.sh
 
 echo -e "
 ------------------------------------------------------------
-        Pure Cloud Block Store - E2E DEMO Deployment
+        Pure Cloud Block Store - QuickStart DEMO Deployment
                 (c) 2023 Pure Storage
                         v$CLI_VERSION
 ------------------------------------------------------------
@@ -32,7 +32,7 @@ Location: $location
 
 # Deploy our infrastructure
 output=$(az deployment sub create \
-  --name "CBS-E2E-deploy-prereq-bicep-sh" \
+  --name "CBS-E2E-$location-deploy-prereq-bicep-sh" \
   --location $location \
   --subscription $subscriptionId \
   --template-file "templates/prerequisites.bicep" \
@@ -102,7 +102,7 @@ echo -e "${C_BLUE3}${C_GREY85}
 "
 
 #in E2E demo we use the latest version
-latestPlan=`(echo '{"plans":[';curl 'https://catalogapi.azure.com/offers/purestoragemarketplaceadmin.pure_storage_cloud_block_store_deployment?api-version=2018-08-01-beta&market=US&includeStopSoldPlans=true&x-ms-effective-locale=en.en-us' 2> /dev/null  | jq -c '.plans | to_entries | .[] | select(.value.isStopSell == false) | select(.value.isHidden == false) | [.value.planId,.value.displayName, (.value.artifacts | .[] | select(.name == "DefaultTemplate").uri)]' | while IFS=$"\n" read -r line; do let "i=i+1";[[ $i == 1 ]] && add="" || add=","; echo $add;planId=\`echo $line | jq -r '.[0]'\`;displayName=\`echo $line | jq -r '.[1]'\`;uri=\`echo $line | jq -r '.[2]'\`;planVersion=\`curl "$uri" 2>/dev/null | jq -r '.resources | .[] | select(.type == "Microsoft.Solutions/applications").plan.version'\`;echo "{\"planId\":\"$planId\",\"planDisplayName\":\"$displayName\",\"planVersion\":\"$planVersion\"}";done;echo "]}") | jq '(.plans | sort_by(.planId) | reverse)[0]'`
+latestPlan=`(echo '{"plans":[';curl 'https://catalogapi.azure.com/offers/purestoragemarketplaceadmin.pure_cloud_block_store_product_deployment?api-version=2018-08-01-beta&market=US&includeStopSoldPlans=true&x-ms-effective-locale=en.en-us' 2> /dev/null  | jq -c '.plans | to_entries | .[] | select(.value.isStopSell == false) | select(.value.isHidden == false) | [.value.planId,.value.displayName, (.value.artifacts | .[] | select(.name == "DefaultTemplate").uri)]' | while IFS=$"\n" read -r line; do let "i=i+1";[[ $i == 1 ]] && add="" || add=","; echo $add;planId=\`echo $line | jq -r '.[0]'\`;displayName=\`echo $line | jq -r '.[1]'\`;uri=\`echo $line | jq -r '.[2]'\`;planVersion=\`curl "$uri" 2>/dev/null | jq -r '.resources | .[] | select(.type == "Microsoft.Solutions/applications").plan.version'\`;echo "{\"planId\":\"$planId\",\"planDisplayName\":\"$displayName\",\"planVersion\":\"$planVersion\"}";done;echo "]}") | jq '(.plans | sort_by(.planId) | reverse)[0]'`
 
 
 AZURE_MARKETPLACE_PLAN_NAME=`echo $latestPlan | jq -r .planId`
@@ -136,7 +136,7 @@ jitApprovers="[{'displayName':'$AZURE_LOGGED_USER_EMAIL','id':'$AZURE_LOGGED_USE
 
 # Deploy CBS
 output=$(az deployment group create \
-  --name "CBS-E2E-deploy-sh" \
+  --name "CBS-E2E-$location-deploy-sh" \
   --resource-group $resourceGroupName \
   --subscription $subscriptionId \
   --template-file "templates/cbs-managed-app.bicep" \
@@ -228,7 +228,7 @@ echo -e "${C_BLUE3}${C_GREY85}
 
 # Deploy our infrastructure
 output=$(az deployment group create \
-  --name "CBS-E2E-test-vm-deploy-sh" \
+  --name "CBS-E2E-$location-test-vm-deploy-sh" \
   --resource-group $resourceGroupName \
   --subscription $subscriptionId \
   --template-file "templates/test-vm.bicep" \
