@@ -8,7 +8,7 @@ param resourceName = 'my-resource-name'
 param alertRecipients = 'my-email-address@contoso.dev'
 param arrayName = 'my-array-name'
 param licenseKey = 'CBS-TRIAL-LICENSE'
-param cbsModelSku = 'V20MUR1'
+param cbsModelSku = 'V10MP2R2'
 param orgDomain = 'myorgdomain.dev'
 // replace with resource ID of the managed identity (e.g. from output of 01-deploy-prerequisities.sh)
 param managedUserIdentityId = '/subscriptions/<---MY SUBSCRITION ID--->/resourceGroups/<---RG NAME--->/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<---NAME OF USER MANAGED IDENTITY --->'

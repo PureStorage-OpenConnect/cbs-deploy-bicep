@@ -38,7 +38,7 @@ arrayName="${resourceGroupName}-cbs"
 # the value 'CBS-TRIAL-LICENSE' is for 40-days trial license
 licenseKey='CBS-TRIAL-LICENSE'
 
-# CBS array SKUs options: 'V10MUR1', 'V20MUR1', 'V20MP2R2'
+# CBS array SKUs options: 'V10MUR1', 'V10MP2R2', 'V20MUR1', 'V20MP2R2'
 cbsModelSku='V20MP2R2'
 
 orgDomain='trialbicep.purestorage'
