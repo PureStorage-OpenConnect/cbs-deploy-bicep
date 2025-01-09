@@ -63,9 +63,6 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2023-04-01' = {
           addressPrefix: subnetForSystemAddressPrefix
           serviceEndpoints: [
             {
-              service: 'Microsoft.AzureCosmosDB'
-            }
-            {
               service: 'Microsoft.KeyVault'
             }
             {
